@@ -2,6 +2,8 @@ import React from 'react';
 import { RingProgress, Text, SimpleGrid, Paper, Center, Group } from '@mantine/core';
 import { ArrowUpRight, ArrowDownRight } from 'tabler-icons-react';
 
+import { LearnModal } from '../LoginModal/LoginModal';
+
 interface StatsProps {
   data: {
     label: string;
@@ -48,7 +50,7 @@ export function Stats({ data }: StatsProps) {
     );
   });
   return (
-    <SimpleGrid cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+    <SimpleGrid cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]} mt={30}>
       {stats}
     </SimpleGrid>
   );

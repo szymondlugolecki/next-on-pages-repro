@@ -13,15 +13,7 @@ import { Stats } from '../../components/Stats/Stats';
 
 import styles from './Play.styles';
 
-interface StatsRingProps {
-  data: {
-    label: string;
-    stats: string;
-    progress: number;
-    color: string;
-    icon: 'up' | 'down';
-  }[];
-}
+import { LearnModal } from '../../components/LoginModal/LoginModal';
 
 interface StatsProps {
   data: {
@@ -68,12 +60,13 @@ export default function PlayPage() {
           <Text size="xl" weight="bolder">
             Practice alone
           </Text>
+
           <Button
             variant="gradient"
+            gradient={{ from: 'green', to: 'lime' }}
             radius="sm"
             size="xl"
             uppercase={true}
-            className={classes.learnButton}
           >
             LEARN
           </Button>
@@ -91,7 +84,13 @@ export default function PlayPage() {
           <Text size="xl" weight="bolder">
             Compete with others
           </Text>
-          <Button variant="gradient" radius="sm" size="xl" uppercase={true}>
+          <Button
+            variant="gradient"
+            gradient={{ from: 'blue', to: 'indigo' }}
+            radius="sm"
+            size="xl"
+            uppercase={true}
+          >
             CHALLENGE
           </Button>
         </Stack>

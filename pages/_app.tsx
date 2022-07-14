@@ -1,7 +1,7 @@
-import { useState } from 'react';
-
 import { AppProps } from 'next/app';
 import Head from 'next/head';
+
+import { SessionProvider } from 'next-auth/react';
 
 import { MantineProvider, ColorScheme, AppShell } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
@@ -11,8 +11,13 @@ import { HeaderLayout } from '../components/Header/Header';
 
 import { theme } from './_theme';
 
-export default function App(props: AppProps & { colorScheme: ColorScheme }) {
+import { Session } from 'next-auth';
+
+// App(props: AppProps & { colorScheme: ColorScheme })
+
+export default function App(props: AppProps & { pageProps: { session: Session } }) {
   const { Component, pageProps } = props;
+  const session = pageProps.session;
 
   const headerLinks = [
     { link: '/home', label: 'Home' },
@@ -28,21 +33,23 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   return (
     <>
       <Head>
-        <title>GeoAcademio</title>
+        <title>geopolis.io</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
         <link rel="shortcut icon" href="/favicon.svg" />
       </Head>
 
       <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-        <NotificationsProvider>
-          <AppShell
-            fixed
-            footer={<FooterLayout links={footerLinks} />}
-            header={<HeaderLayout links={headerLinks} />}
-          >
-            <Component {...pageProps} />
-          </AppShell>
-        </NotificationsProvider>
+        <SessionProvider session={session}>
+          <NotificationsProvider>
+            <AppShell
+              fixed
+              footer={<FooterLayout links={footerLinks} />}
+              header={<HeaderLayout links={headerLinks} />}
+            >
+              <Component {...pageProps} />
+            </AppShell>
+          </NotificationsProvider>
+        </SessionProvider>
       </MantineProvider>
     </>
   );
