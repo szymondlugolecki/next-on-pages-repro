@@ -10,15 +10,6 @@ import image from './world.svg';
 export function HomeFirst() {
   const { classes } = styles();
 
-  const classFn = (...args: Array<String>) => {
-    let classString = '';
-    args.forEach((arg) => {
-      /* ts.ignore */
-      classString.concat(classes[arg]);
-    });
-    return classString;
-  };
-
   return (
     <Container className={classes.inner}>
       <div className={classes.content}>
