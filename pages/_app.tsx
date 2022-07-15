@@ -9,9 +9,14 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { FooterLayout } from '../components/Footer/Footer';
 import { HeaderLayout } from '../components/Header/Header';
 
-import { theme } from './_theme';
-
 import { Session } from 'next-auth';
+
+import { MantineThemeOverride } from '@mantine/core';
+
+export const theme: MantineThemeOverride = {
+  colorScheme: 'dark',
+  primaryColor: 'green',
+};
 
 // App(props: AppProps & { colorScheme: ColorScheme })
 
