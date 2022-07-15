@@ -11,7 +11,7 @@ import {
 } from '@mantine/core';
 import { Stats } from '../../components/Stats/Stats';
 
-import styles from './Play.styles';
+import styles from '../../pagesCss/Play.styles';
 
 import { LearnModal } from '../../components/LoginModal/LoginModal';
 
