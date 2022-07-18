@@ -1,13 +1,7 @@
 import { Container, Grid, Skeleton } from '@mantine/core';
 import { Feature } from '../Feature/Feature';
 
-import styles from './HomeSecond.styles';
-
-const child = <Skeleton height={250} radius="md" animate={false} />;
-
 export function HomeSecond() {
-  const { classes } = styles();
-
   return (
     <Container mt={300} my="md">
       <Grid gutter="xl">
