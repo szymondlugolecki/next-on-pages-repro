@@ -1,14 +1,4 @@
-import {
-  RingProgress,
-  Stack,
-  Text,
-  Button,
-  Container,
-  Group,
-  Paper,
-  Center,
-  SimpleGrid,
-} from '@mantine/core';
+import { Stack, Text, Button, Container, Group } from '@mantine/core';
 import { Stats } from '../../components/Stats/Stats';
 
 import styles from '../../pagesCss/Play.styles';
