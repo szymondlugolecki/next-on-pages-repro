@@ -16,6 +16,6 @@
     "incremental": true,
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "functions/api/hello.js"],
   "exclude": ["node_modules"]
 }
