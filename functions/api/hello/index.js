@@ -13,7 +13,7 @@ export async function onRequest(context) {
 
   const user = await env.USERS.get('260');
 
-  console.log('user', user);
+  console.log('user huj', user);
 
   return new Response(user);
 }

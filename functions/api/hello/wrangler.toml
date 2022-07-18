@@ -1,4 +1,4 @@
-name = "my-worker"
+name = "hello"
 account_id = "86b3069c45014c13f4729d416b292bcb"
 route = "https://88625a69.geopolis-io.pages.dev"
 workers_dev = false
