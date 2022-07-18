@@ -9,6 +9,8 @@ export async function onRequest(context) {
     data, // arbitrary space for passing data between middlewares
   } = context;
 
+  console.log(env.USERS);
+
   const user = await env.USERS.get('260');
 
   console.log('user', user);

@@ -1,0 +1,9 @@
+name = "my-worker"
+account_id = "86b3069c45014c13f4729d416b292bcb"
+route = "https://88625a69.geopolis-io.pages.dev"
+workers_dev = false
+
+kv_namespaces = [
+  { binding = "USERS", id = "846514bec2ec4605932e0a5b451efcaa" }
+]
+

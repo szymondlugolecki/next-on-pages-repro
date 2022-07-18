@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "staticbuild": "next build && next export",
     "analyze": "ANALYZE=true next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
