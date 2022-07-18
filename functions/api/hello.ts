@@ -1,5 +1,3 @@
-import { KVNamespace } from '@cloudflare/workers-types';
-
 export async function onRequest(context) {
   // Contents of context object
   const {
