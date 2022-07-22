@@ -5,6 +5,8 @@ import styles from '../../pagesCss/Play.styles';
 
 import { LearnModal } from '../../components/LoginModal/LoginModal';
 
+import { useSession, signOut } from 'next-auth/react';
+
 interface StatsProps {
   data: {
     label: string;
@@ -16,7 +18,10 @@ interface StatsProps {
 }
 
 export default function PlayPage() {
+  const { data: session, status } = useSession();
   const { classes } = styles();
+
+  console.log(session, status);
 
   const statsLearnData: StatsProps = {
     data: [
@@ -33,6 +38,9 @@ export default function PlayPage() {
       { label: 'Current Win-Streak', stats: '2', progress: 40, color: 'red', icon: 'down' },
     ],
   };
+
+  if (status === 'loading') return <h1>Loading...</h1>;
+  if (status === 'unauthenticated') return <h1>Log in to view this page</h1>;
 
   return (
     <Container className={classes.container}>

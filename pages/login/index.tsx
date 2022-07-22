@@ -16,8 +16,13 @@ import {
   Box,
 } from '@mantine/core';
 import { BrandGoogle, At, Check, X } from 'tabler-icons-react';
-import { signIn } from 'next-auth/react';
+
+import { useSession, signIn, getSession } from 'next-auth/react';
+import router from 'next/router';
+
 // import { GoogleButton, TwitterButton } from '../SocialButtons/SocialButtons';
+
+import { Credentials } from '../../types/Types';
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (
@@ -46,6 +51,38 @@ export default function Login(props: PaperProps<'div'>) {
     },
   });
 
+  // const redirect = () => {
+  //   const { pathname } = router;
+  //   if (pathname === '/login') router.push('/play');
+  // };
+
+  const registerUser = async () => {
+    try {
+      const { email, password, nickname } = form.values;
+      const data = JSON.stringify({ email, nickname, password });
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: data,
+      });
+      const { error } = await response.json();
+      if (error) return console.error(error);
+      await loginUser({ email, password });
+      // redirect();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loginUser = async (data: Credentials) =>
+    await signIn('credentials', {
+      ...data,
+      redirect: true,
+      callbackUrl: `${window.location.origin}/play`,
+    });
+
   return (
     <Container size="xs">
       <Paper radius="md" p="xl" withBorder {...props}>
@@ -62,9 +99,10 @@ export default function Login(props: PaperProps<'div'>) {
         <Divider label="Or continue with email" labelPosition="center" my="lg" />
 
         <form
-          onSubmit={form.onSubmit(() =>
-            signIn('credentials', { email: form.values.email, password: '' })
-          )}
+          onSubmit={form.onSubmit(() => {
+            if (type === 'register') registerUser();
+            else loginUser(form.values);
+          })}
         >
           <Group direction="column" grow>
             {type === 'register' && (
@@ -131,3 +169,18 @@ export default function Login(props: PaperProps<'div'>) {
     </Container>
   );
 }
+
+// export async function getServerSideProps(context) {
+//   const session = await getSession({ req: context.req });
+//   if (!session) {
+//     return {
+//       redirect: {
+//         destination: '/auth',
+//         permanent: false,
+//       },
+//     };
+//   }
+//   return {
+//     props: { session },
+//   };
+// }

@@ -1,17 +1,16 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 
-import { SessionProvider } from 'next-auth/react';
-
 import { MantineProvider, ColorScheme, AppShell } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
 
 import { FooterLayout } from '../components/Footer/Footer';
 import { HeaderLayout } from '../components/Header/Header';
 
-import { Session } from 'next-auth';
-
 import { MantineThemeOverride } from '@mantine/core';
+
+import { Session } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
 
 export const theme: MantineThemeOverride = {
   colorScheme: 'dark',
@@ -20,7 +19,7 @@ export const theme: MantineThemeOverride = {
 
 // App(props: AppProps & { colorScheme: ColorScheme })
 
-export default function App(props: AppProps & { pageProps: { session: Session } }) {
+export default function App(props: AppProps & { session: Session }) {
   const { Component, pageProps } = props;
   const session = pageProps.session;
 
@@ -43,8 +42,8 @@ export default function App(props: AppProps & { pageProps: { session: Session } 
         <link rel="shortcut icon" href="/favicon.svg" />
       </Head>
 
-      <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
-        <SessionProvider session={session}>
+      <SessionProvider session={session}>
+        <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
           <NotificationsProvider>
             <AppShell
               fixed
@@ -54,8 +53,8 @@ export default function App(props: AppProps & { pageProps: { session: Session } 
               <Component {...pageProps} />
             </AppShell>
           </NotificationsProvider>
-        </SessionProvider>
-      </MantineProvider>
+        </MantineProvider>
+      </SessionProvider>
     </>
   );
 }
