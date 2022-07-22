@@ -76,12 +76,8 @@ export default function Login(props: PaperProps<'div'>) {
     }
   };
 
-  const loginUser = async (data: Credentials) =>
-    await signIn('credentials', {
-      ...data,
-      redirect: true,
-      callbackUrl: `${window.location.origin}/play`,
-    });
+  const loginUser = async ({ email, password }: Credentials) =>
+    await signIn('credentials', { password, email });
 
   return (
     <Container size="xs">

@@ -8,7 +8,6 @@ import { UserDB } from '../types/Types';
 
 export const providers = [
   Credentials({
-    id: 'emailandpassword',
     name: 'Credentials',
     // The credentials is used to generate a suitable form on the sign in page.
     // You can specify whatever fields you are expecting to be submitted.
@@ -21,13 +20,17 @@ export const providers = [
     type: 'credentials',
     // @ts-ignore
     authorize: async (credentials) => {
+      console.log('AUTHORIZE', 0);
       if (!credentials) return null;
       let { email, password } = credentials;
 
       email = email.toLowerCase();
 
+      console.log('AUTHORIZE', 1);
+
       try {
         const userID: string | null = await redis.get(`rel:email:${email}`);
+        console.log('userID by email', userID);
         if (!userID) return null;
 
         // @ts-ignore

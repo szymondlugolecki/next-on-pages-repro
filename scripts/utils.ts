@@ -14,8 +14,6 @@ export const validateForm = async (username: string, email: string, password: st
   if (pureEmail.length > 64 || email.length > 320 || !validateEmail(email))
     return { error: 'Invalid email' };
 
-  console.log('pureEmail', pureEmail);
-
   // valid data, check if user already exists
 
   // check if relation id-email exists, if so return an error
