@@ -20,15 +20,13 @@ export const providers = [
     type: 'credentials',
     // @ts-ignore
     authorize: async (credentials) => {
-      console.log('AUTHORIZE', 0);
       if (!credentials) return null;
       let { email, password } = credentials;
 
       email = email.toLowerCase();
 
-      console.log('AUTHORIZE', 1);
-
       try {
+        console.log(`rel:email:${email}`);
         const userID: string | null = await redis.get(`rel:email:${email}`);
         console.log('userID by email', userID);
         if (!userID) return null;

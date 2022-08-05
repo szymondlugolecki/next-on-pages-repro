@@ -36,10 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const result = await redis.hset(id, user);
     if (result !== 5) console.log('only', result, 'fields added');
 
-    redis.set(`rel:nickname:${nickname}`, id);
-    // .then(console.log).catch(console.error);
-    redis.set(`rel:email:${email}`, id);
-    // .then(console.log).catch(console.error);
+    redis.set(`rel:nickname:${nickname}`, id).then(console.log).catch(console.error);
+    redis.set(`rel:email:${email}`, id).then(console.log).catch(console.error);
 
     console.log('user registered', id);
 

@@ -1,16 +1,16 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 
-import { MantineProvider, ColorScheme, AppShell } from '@mantine/core';
+import { AppShell, MantineProvider, MantineThemeOverride } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
 
 import { FooterLayout } from '../components/Footer/Footer';
 import { HeaderLayout } from '../components/Header/Header';
 
-import { MantineThemeOverride } from '@mantine/core';
-
 import { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
+
+import { RouterTransition } from '../components/RouterTransition/RouterTransition';
 
 export const theme: MantineThemeOverride = {
   colorScheme: 'dark',
@@ -19,20 +19,11 @@ export const theme: MantineThemeOverride = {
 
 // App(props: AppProps & { colorScheme: ColorScheme })
 
+import { headerLinks, footerLinks } from '../scripts/client';
+
 export default function App(props: AppProps & { session: Session }) {
   const { Component, pageProps } = props;
   const session = pageProps.session;
-
-  const headerLinks = [
-    { link: '/home', label: 'Home' },
-    { link: '/store', label: 'Store' },
-  ];
-
-  const footerLinks = [
-    { link: '/tos', label: 'Terms of Service' },
-    { link: '/privacy', label: 'Privacy Policy' },
-    { link: '/contact', label: 'Contact' },
-  ];
 
   return (
     <>
@@ -44,6 +35,7 @@ export default function App(props: AppProps & { session: Session }) {
 
       <SessionProvider session={session}>
         <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
+          <RouterTransition />
           <NotificationsProvider>
             <AppShell
               fixed

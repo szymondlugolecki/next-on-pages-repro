@@ -1,12 +1,12 @@
 import React from 'react';
-import { useForm, useToggle, upperFirst } from '@mantine/hooks';
+
 import {
   TextInput,
   PasswordInput,
   Text,
   Paper,
   Group,
-  PaperProps,
+  Stack,
   Button,
   Divider,
   Checkbox,
@@ -15,14 +15,20 @@ import {
   Center,
   Box,
 } from '@mantine/core';
+import { useToggle } from '@mantine/hooks';
+import { showNotification } from '@mantine/notifications';
+import { useForm } from '@mantine/form';
+
+import { GetServerSideProps } from 'next';
+
+import router, { useRouter } from 'next/router';
+import { getSession, signIn } from 'next-auth/react';
+
 import { BrandGoogle, At, Check, X } from 'tabler-icons-react';
 
-import { useSession, signIn, getSession } from 'next-auth/react';
-import router from 'next/router';
+import { FormValues, Credentials } from '../../types/Types';
 
-// import { GoogleButton, TwitterButton } from '../SocialButtons/SocialButtons';
-
-import { Credentials } from '../../types/Types';
+// import { capitalize } from '../../scripts/client';
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (
@@ -35,8 +41,29 @@ function PasswordRequirement({ meets, label }: { meets: boolean; label: string }
   );
 }
 
-export default function Login(props: PaperProps<'div'>) {
-  const [type, toggle] = useToggle('login', ['login', 'register']);
+const registerError = (error: string) => {
+  showNotification({ title: 'Error', message: error, autoClose: 10000, icon: <X /> });
+  console.error(error);
+};
+
+const loginUser = async ({ email, password }: Credentials) =>
+  await signIn('credentials', { password, email });
+
+const redirectAfter = 1750;
+
+export const capitalize = (text: string) => {
+  return text
+    .split(' ')
+    .map((word: string) => {
+      word = word.toUpperCase();
+      return word.charAt(0) + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+};
+
+export default function Login() {
+  const { push } = useRouter();
+  const [type, toggle] = useToggle(['login', 'register']);
   const form = useForm({
     initialValues: {
       email: '',
@@ -45,20 +72,15 @@ export default function Login(props: PaperProps<'div'>) {
       terms: true,
     },
 
-    validationRules: {
+    validate: {
       email: (val) => /^\S+@\S+$/.test(val),
       password: (val) => val.length >= 6,
     },
   });
 
-  // const redirect = () => {
-  //   const { pathname } = router;
-  //   if (pathname === '/login') router.push('/play');
-  // };
-
-  const registerUser = async () => {
+  const registerUser = async (values: FormValues) => {
     try {
-      const { email, password, nickname } = form.values;
+      const { email, password, nickname } = values;
       const data = JSON.stringify({ email, nickname, password });
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -67,40 +89,53 @@ export default function Login(props: PaperProps<'div'>) {
         },
         body: data,
       });
-      const { error } = await response.json();
-      if (error) return console.error(error);
-      await loginUser({ email, password });
-      // redirect();
+      const { error, msg } = await response.json();
+
+      // unsuccessful register
+      if (error) return registerError(error);
+
+      // successful register
+      showNotification({
+        title: 'Success',
+        message: `${msg}.\nRedirecting...`,
+        autoClose: 10000,
+        icon: <Check />,
+      });
+
+      // login & redirect
+      setTimeout(async () => {
+        await loginUser({ email, password });
+        const { pathname } = router;
+        console.log(pathname);
+        if (pathname === '/login') push('/play').then(console.log);
+      }, redirectAfter);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const loginUser = async ({ email, password }: Credentials) =>
-    await signIn('credentials', { password, email });
+  console.log(type);
 
   return (
     <Container size="xs">
-      <Paper radius="md" p="xl" withBorder {...props}>
+      <Paper radius="md" p="xl" withBorder>
         <Text size="lg" weight={500}>
           Welcome to <b>Geopolis</b>, {type} with
         </Text>
 
         <Group grow mb="md" mt="md">
-          {/* <GoogleButton radius="xl">Google</GoogleButton> */}
-          {/* <TwitterButton radius="xl">Twitter</TwitterButton> */}
           <Button leftIcon={<BrandGoogle size={18} />}>Google</Button>
         </Group>
 
-        <Divider label="Or continue with email" labelPosition="center" my="lg" />
+        <Divider label="Or continue with email" labelPosition="center" mt="lg" mb="sm" />
 
         <form
           onSubmit={form.onSubmit(() => {
-            if (type === 'register') registerUser();
+            if (type === 'register') registerUser(form.values);
             else loginUser(form.values);
           })}
         >
-          <Group direction="column" grow>
+          <Stack>
             {type === 'register' && (
               <TextInput
                 required
@@ -144,7 +179,7 @@ export default function Login(props: PaperProps<'div'>) {
                 onChange={(event) => form.setFieldValue('terms', event.currentTarget.checked)}
               />
             )}
-          </Group>
+          </Stack>
 
           <Group position="apart" mt="xl">
             <Anchor
@@ -158,7 +193,7 @@ export default function Login(props: PaperProps<'div'>) {
                 ? 'Already have an account? Login'
                 : "Don't have an account? Register"}
             </Anchor>
-            <Button type="submit">{upperFirst(type)}</Button>
+            <Button type="submit">{capitalize(type)}</Button>
           </Group>
         </form>
       </Paper>
@@ -166,17 +201,18 @@ export default function Login(props: PaperProps<'div'>) {
   );
 }
 
-// export async function getServerSideProps(context) {
-//   const session = await getSession({ req: context.req });
-//   if (!session) {
-//     return {
-//       redirect: {
-//         destination: '/auth',
-//         permanent: false,
-//       },
-//     };
-//   }
-//   return {
-//     props: { session },
-//   };
-// }
+// @ts-ignore
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession({ req: context.req });
+  if (session) {
+    return {
+      redirect: {
+        destination: '/play',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
+};

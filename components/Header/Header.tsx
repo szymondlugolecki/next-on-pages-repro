@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Header, Container, Group, Burger, Paper, Transition } from '@mantine/core';
-import { useBooleanToggle } from '@mantine/hooks';
+import { useToggle } from '@mantine/hooks';
 import { Globe } from 'tabler-icons-react';
 
 import styles from './Header.styles';
@@ -13,7 +13,7 @@ interface HeaderLayout {
 const HEADER_HEIGHT = 60;
 
 export function HeaderLayout({ links }: HeaderLayout) {
-  const [opened, toggleOpened] = useBooleanToggle(false);
+  const [opened, toggleOpened] = useToggle(false, [false, true]);
   const [active, setActive] = useState(links[0].link);
   const { classes, cx } = styles();
 
@@ -24,7 +24,7 @@ export function HeaderLayout({ links }: HeaderLayout) {
         onClick={(event) => {
           // event.preventDefault();
           setActive(link.link);
-          toggleOpened(false);
+          toggleOpened();
         }}
       >
         {link.label}

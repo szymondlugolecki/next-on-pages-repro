@@ -1,25 +1,24 @@
-import { Stack, Text, Button, Container, Group, Tabs } from '@mantine/core';
-import { Stats } from '../../components/Stats/Stats';
-
-import styles from '../../pagesCss/Play.styles';
-
-import { useSession, signOut } from 'next-auth/react';
-
-import { Loading } from '../../components/Loading/Loading';
+// Hooks
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
-interface StatsProps {
-  data: {
-    label: string;
-    stats: string;
-    progress: number;
-    color: string;
-    icon: 'up' | 'down';
-  }[];
-}
+// Components
+import { ChallengeSolo } from '../../components/ChallengeSolo/ChallengeSolo';
+import { Learn } from '../../components/Learn/Learn';
+import { Stats } from '../../components/Stats/Stats';
+import { Loading } from '../../components/Loading/Loading';
+import { Container, Group, Tabs, HoverCard, Text, Paper } from '@mantine/core';
+import { InfoCircle } from 'tabler-icons-react';
+
+// Types
+
+// Styles
+import styles from '../../pagesCss/Play.styles';
+
+import { statsChallengeData, statsLearnData } from '../../scripts/client';
 
 export default function PlayPage() {
-  const { push } = useRouter();
+  const { push, query } = useRouter();
   const { classes } = styles();
   const { data: session, status } = useSession({
     required: true,
@@ -28,82 +27,47 @@ export default function PlayPage() {
     },
   });
 
-  console.log(session, status);
   if (status === 'loading') return <Loading />;
-
-  const statsLearnData: StatsProps = {
-    data: [
-      { label: 'Correct Answers', stats: '15230', progress: 89, color: 'green', icon: 'up' },
-      { label: 'Games Won', stats: '1024', progress: 78, color: 'blue', icon: 'up' },
-      { label: 'Play Time', stats: '15 hours', progress: 24, color: 'red', icon: 'down' },
-    ],
-  };
-
-  const statsChallengeData: StatsProps = {
-    data: [
-      { label: 'Correct Answers', stats: '11203', progress: 92, color: 'green', icon: 'up' },
-      { label: 'Games Won', stats: '685', progress: 96, color: 'blue', icon: 'up' },
-      { label: 'Current Win-Streak', stats: '2', progress: 40, color: 'red', icon: 'down' },
-    ],
-  };
 
   return (
     <Container className={classes.container}>
-      <Group position="center" grow={true} direction="row" spacing="xl">
-        <Stack
-          align="center"
-          justify="center"
-          sx={(theme) => ({
-            backgroundColor:
-              theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-            height: 200,
-            borderRadius: 10,
-          })}
-        >
-          <Text size="xl" weight="bolder">
-            Practice alone
-          </Text>
+      <Group position="center" grow={true} spacing="xl">
+        <Tabs value={query.activeTab as string}>
+          <Tabs.List>
+            <Tabs.Tab value="learn">Learn</Tabs.Tab>
+            <Tabs.Tab value="challenge/solo">Challenge Solo</Tabs.Tab>
+            <Tabs.Tab value="challenge/multiplayer" disabled>
+              <HoverCard shadow="md" withArrow>
+                <HoverCard.Target>
+                  <Text>Challenge Multiplayer</Text>
+                </HoverCard.Target>
+                <HoverCard.Dropdown>
+                  <Group position="left" noWrap={true}>
+                    <Text size="sm" weight="bold">
+                      Coming soon! 🔥
+                    </Text>
+                  </Group>
+                </HoverCard.Dropdown>
+              </HoverCard>
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="learn" pt="xs">
+            <Paper shadow="xl" radius="md" p="lg" withBorder>
+              <Learn gamemode="learn" />
+            </Paper>
+          </Tabs.Panel>
 
-          <Button
-            variant="gradient"
-            gradient={{ from: 'green', to: 'lime' }}
-            radius="sm"
-            size="xl"
-            uppercase={true}
-            onClick={() => push('/play/learn')}
-          >
-            LEARN
-          </Button>
-        </Stack>
-        <Stack
-          align="center"
-          justify="center"
-          sx={(theme) => ({
-            backgroundColor:
-              theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
-            height: 200,
-            borderRadius: 10,
-          })}
-        >
-          <Text size="xl" weight="bolder">
-            Compete with others
-          </Text>
-          <Button
-            variant="gradient"
-            gradient={{ from: 'blue', to: 'indigo' }}
-            radius="sm"
-            size="xl"
-            uppercase={true}
-            onClick={() => push('/play/challenge')}
-          >
-            CHALLENGE
-          </Button>
-        </Stack>
+          <Tabs.Panel value="challenge/solo" pt="xs">
+            <Paper shadow="xl" radius="md" p="lg" withBorder>
+              <ChallengeSolo gamemode="challenge:solo" />
+            </Paper>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="challenge/multiplayer" pt="xs">
+            Settings tab content
+          </Tabs.Panel>
+        </Tabs>
       </Group>
-      {/* Play buttons: Learn mode | Challenge mode */}
-      {/* Basic Stats */}
-      {/* Login Bonus (should auto appear in a modal after logging in, instead of manually claiming it) */}
-      {/*  */}
       <Stats data={statsLearnData.data} />
       <Stats data={statsChallengeData.data} />
     </Container>

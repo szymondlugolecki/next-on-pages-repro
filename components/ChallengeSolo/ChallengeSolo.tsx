@@ -1,55 +1,59 @@
-import { useState } from 'react';
-import { useForm, useToggle, upperFirst } from '@mantine/hooks';
-import { Text, Group, Button, Divider, Switch, Chips, Chip, Tabs } from '@mantine/core';
-
-import { useSession, signOut } from 'next-auth/react';
+// Hooks
+import { useForm } from '@mantine/form';
 import { useRouter } from 'next/router';
-import { ArrowBack } from 'tabler-icons-react';
+// import { useState } from 'react';
 
-import { Region } from '../../types/Types';
+// Components
+import { Text, Group, Button, Divider, Switch, Chip, Stack, Checkbox, Box } from '@mantine/core';
+import { Flag, Map, CurrentLocation, Crown, X } from 'tabler-icons-react';
+import { RegionsSelect } from '../RegionsSelect/RegionsSelect';
+import { DependenceChoice } from '../DependenceChoice/DependenceChoice';
 
+// Types
+import { Region, Dependence, Gamemode, GameCreationFormChallenge } from '../../types/Types';
+
+// Styles
 import styles from './ChallengeSolo.styles';
 
-export function ChallengeSolo() {
+// Client-Side Data & Functions
+import { regions, postData, dependenceOptions } from '../../scripts/client';
+import { showNotification } from '@mantine/notifications';
+
+export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
   const { push, query } = useRouter();
   const { classes } = styles();
 
   const form = useForm({
     initialValues: {
-      countries: false,
-      independentOnly: true,
-      capitalCities: false,
-      map: false,
-      flags: false,
-      regions: ['europe'] as Region[],
-      // mode: 0, // classic | speedrun
-    },
-
-    validationRules: {
+      dependence: 'all',
+      preferences: {
+        capitalCities: false,
+        map: false,
+        flags: false,
+      },
+      regions: ['europe'],
+    } as GameCreationFormChallenge,
+    validate: {
+      dependence: (dependence: Dependence) =>
+        !dependenceOptions.includes(dependence) ? 'Choose between All/Dependent/Independent' : null,
       regions: (arr: Region[]) =>
-        arr.every((region) => ['europe', 'americas', 'africa', 'asia', 'oceania'].includes(region)),
+        arr.every((region) => !regions.includes(region)) ? 'Invalid region provided' : null,
     },
   });
 
-  const createGame = async () => {
-    console.log('create Game');
+  async function createGame(values: GameCreationFormChallenge) {
+    console.log('create Game', gamemode);
     try {
-      const { countries, capitalCities, map, flags, regions, independentOnly } = form.values;
+      const { preferences, regions, dependence } = values;
       const data = JSON.stringify({
-        countries,
-        capitalCities,
-        map,
-        flags,
-        regions,
-        independentOnly,
-      });
-      const response = await fetch('/api/game/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+        data: {
+          gamemode,
+          preferences,
+          regions,
+          dependence,
         },
-        body: data,
       });
+      const response = await postData('/api/game/create', data);
       const { error, msg, questions } = await response.json();
 
       // unsuccessful
@@ -60,69 +64,94 @@ export function ChallengeSolo() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }
+
+  const allQuestionsChecked =
+    form.values.preferences.capitalCities &&
+    form.values.preferences.flags &&
+    form.values.preferences.map;
 
   return (
-    <form onSubmit={form.onSubmit(() => createGame())}>
-      <Group direction="column" grow>
-        <Text size="xl" weight={700}>
-          Quiz
+    <form onSubmit={form.onSubmit((values) => createGame(values))}>
+      <Stack>
+        <Text size="lg" weight="bold">
+          Questions
         </Text>
 
-        <Switch
-          size="md"
-          className={classes.gamemodeSwitch}
-          checked={form.values.countries}
-          label="Countries"
-          onChange={() => form.setFieldValue('countries', !form.values.countries)}
-        />
-        <Switch
-          size="md"
-          className={classes.gamemodeSwitch}
-          checked={form.values.capitalCities}
-          label="Capital Cities"
-          onChange={() => form.setFieldValue('capitalCities', !form.values.capitalCities)}
-        />
-        <Switch
-          size="md"
-          className={classes.gamemodeSwitch}
-          checked={form.values.flags}
-          label="Flags"
-          onChange={() => form.setFieldValue('flags', !form.values.flags)}
-        />
-        <Switch
-          size="md"
-          className={classes.gamemodeSwitch}
-          checked={form.values.map}
-          label="Map"
-          onChange={() => form.setFieldValue('map', !form.values.map)}
-        />
+        <Checkbox.Group defaultValue={['capitalCities', 'map', 'flags']} required>
+          <Checkbox
+            onChange={() =>
+              form.setFieldValue('capitalCities', !form.values.preferences.capitalCities)
+            }
+            checked={form.values.preferences.capitalCities}
+            className={classes.checkbox}
+            size="xl"
+            ml={33}
+            value="capitalCities"
+            label={
+              <Group>
+                <CurrentLocation size={36} />
+                <Text size="xl">Capital Cities</Text>
+              </Group>
+            }
+          />
+          <Checkbox
+            onChange={() => form.setFieldValue('map', !form.values.preferences.map)}
+            checked={form.values.preferences.map}
+            className={classes.checkbox}
+            size="xl"
+            ml={33}
+            value="map"
+            label={
+              <Group>
+                <Map size={36} />
+                <Text size="xl">Map</Text>
+              </Group>
+            }
+          />
+          <Checkbox
+            onChange={() => form.setFieldValue('flags', !form.values.preferences.flags)}
+            checked={form.values.preferences.flags}
+            className={classes.checkbox}
+            size="xl"
+            ml={33}
+            value="flags"
+            label={
+              <Group>
+                <Flag size={36} />
+                <Text size="xl">Flags</Text>
+              </Group>
+            }
+          />
+        </Checkbox.Group>
 
         <Divider my="sm" variant="dashed" />
 
-        <Chips
-          variant="outline"
-          value={form.values.regions}
-          defaultValue={form.values.regions}
-          position="center"
-          size="md"
-          multiple
-          onChange={(newValue: Region[]) => {
-            form.setFieldValue('regions', newValue);
-          }}
-        >
-          <Chip value="europe">Europe</Chip>
-          <Chip value="americas">Americas</Chip>
-          <Chip value="africa">Africa</Chip>
-          <Chip value="asia">Asia</Chip>
-          <Chip value="oceania">Oceania</Chip>
-        </Chips>
+        <Text size="lg" weight="bold">
+          Regions
+        </Text>
+
+        <RegionsSelect regions={form.values.regions} setFieldValue={form.setFieldValue} />
+
         <Divider my="sm" variant="dashed" />
-      </Group>
+
+        <Text size="lg" weight="bold">
+          Advanced
+        </Text>
+
+        <Box>
+          <DependenceChoice
+            dependence={form.values.dependence}
+            setFieldValue={form.setFieldValue}
+          />
+        </Box>
+
+        <Divider my="sm" variant="dashed" />
+      </Stack>
 
       <Group position="apart" mt="xl">
-        <Button size="lg" color="red" onClick={() => push('/play')}>
-          <ArrowBack />
+        <Button color="blue" size="lg">
+          SAVE
         </Button>
         <Button type="submit" size="lg">
           START
