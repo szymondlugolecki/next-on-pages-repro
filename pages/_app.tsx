@@ -7,9 +7,6 @@ import { NotificationsProvider } from '@mantine/notifications';
 import { FooterLayout } from '../components/Footer/Footer';
 import { HeaderLayout } from '../components/Header/Header';
 
-import { Session } from 'next-auth';
-import { SessionProvider } from 'next-auth/react';
-
 import { RouterTransition } from '../components/RouterTransition/RouterTransition';
 
 export const theme: MantineThemeOverride = {
@@ -19,11 +16,13 @@ export const theme: MantineThemeOverride = {
 
 // App(props: AppProps & { colorScheme: ColorScheme })
 
-import { headerLinks, footerLinks } from '../scripts/client';
+import { headerLinks, footerLinks } from '../lib/constants';
+import { useFetchUser, UserProvider } from '../lib/authContext';
 
-export default function App(props: AppProps & { session: Session }) {
+export default function App(props: AppProps) {
   const { Component, pageProps } = props;
-  const session = pageProps.session;
+
+  const { user, loading } = useFetchUser();
 
   return (
     <>
@@ -33,7 +32,7 @@ export default function App(props: AppProps & { session: Session }) {
         <link rel="shortcut icon" href="/favicon.svg" />
       </Head>
 
-      <SessionProvider session={session}>
+      <UserProvider value={{ user, loading }}>
         <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
           <RouterTransition />
           <NotificationsProvider>
@@ -46,7 +45,7 @@ export default function App(props: AppProps & { session: Session }) {
             </AppShell>
           </NotificationsProvider>
         </MantineProvider>
-      </SessionProvider>
+      </UserProvider>
     </>
   );
 }
