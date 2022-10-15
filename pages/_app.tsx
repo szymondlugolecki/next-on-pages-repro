@@ -9,30 +9,28 @@ import { HeaderLayout } from '../components/Header/Header';
 
 import { RouterTransition } from '../components/RouterTransition/RouterTransition';
 
+import { headerLinks, footerLinks } from '../lib/constants';
+
+import UserProvider from '../lib/userContext';
+
 export const theme: MantineThemeOverride = {
   colorScheme: 'dark',
   primaryColor: 'green',
 };
 
-// App(props: AppProps & { colorScheme: ColorScheme })
-
-import { headerLinks, footerLinks } from '../lib/constants';
-import { useFetchUser, UserProvider } from '../lib/authContext';
-
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
-
-  const { user, loading } = useFetchUser();
 
   return (
     <>
       <Head>
         <title>geopolis.io</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+        <meta charSet="UTF-8" />
         <link rel="shortcut icon" href="/favicon.svg" />
       </Head>
 
-      <UserProvider value={{ user, loading }}>
+      <UserProvider>
         <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
           <RouterTransition />
           <NotificationsProvider>

@@ -1,21 +1,16 @@
 import React from 'react';
+import { useScrollIntoView } from '@mantine/hooks';
 
 import { HomeFirst } from '../../components/HomeFirst/HomeFirst';
 import { HomeSecond } from '../../components/HomeSecond/HomeSecond';
 
-import { Loading } from '../../components/Loading/Loading';
-
-import { useSession } from 'next-auth/react';
-
 export default function Home() {
-  const { data: session, status } = useSession();
-
-  if (status === 'loading') return <Loading />;
+  const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({ offset: 60 });
 
   return (
     <div>
-      <HomeFirst />
-      <HomeSecond />
+      <HomeFirst scrollFunc={scrollIntoView} />
+      <HomeSecond targetRef={targetRef} />
     </div>
   );
 }

@@ -2,15 +2,8 @@ import React from 'react';
 import { RingProgress, Text, SimpleGrid, Paper, Center, Group } from '@mantine/core';
 import { ArrowUpRight, ArrowDownRight } from 'tabler-icons-react';
 
-interface StatsProps {
-  data: {
-    label: string;
-    stats: string;
-    progress: number;
-    color: string;
-    icon: 'up' | 'down';
-  }[];
-}
+// xD
+import { StatsProps } from '../../types/GameplayTypes';
 
 const icons = {
   up: ArrowUpRight,

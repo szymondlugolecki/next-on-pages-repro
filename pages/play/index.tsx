@@ -1,75 +1,87 @@
 // Hooks
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 // Components
-import { ChallengeSolo } from '../../components/ChallengeSolo/ChallengeSolo';
-import { Learn } from '../../components/Learn/Learn';
-import { Stats } from '../../components/Stats/Stats';
-import { Loading } from '../../components/Loading/Loading';
 import { Container, Group, Tabs, HoverCard, Text, Paper } from '@mantine/core';
-import { InfoCircle } from 'tabler-icons-react';
+import { Loading } from '../../components/Loading/Loading';
+import { GameHandler } from '../../components/GameHandler/GameHandler';
 
 // Types
 
 // Styles
-import styles from '../../pagesCss/Play.styles';
+import styles from './Play.styles';
 
-import { statsChallengeData, statsLearnData } from '../../scripts/client';
+import {
+  availableGamemodes,
+  gamemodes,
+} from '../../lib/constants';
+import { Gamemode } from '../../types/GameplayTypes';
+import { capitalize } from '../../lib/functions';
+import AuthHook from '../../lib/authHook';
 
 export default function PlayPage() {
-  const { push, query } = useRouter();
   const { classes } = styles();
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated: () => {
+  const { push, query } = useRouter();
+
+  const { status } = AuthHook({
+    onUnauthenticated() {
       push('/login');
     },
   });
 
-  if (status === 'loading') return <Loading />;
+  const gameModeFormat = (gamemode: Gamemode) => capitalize(gamemode.split(':').join(' '));
 
-  return (
-    <Container className={classes.container}>
-      <Group position="center" grow={true} spacing="xl">
-        <Tabs value={query.activeTab as string}>
-          <Tabs.List>
-            <Tabs.Tab value="learn">Learn</Tabs.Tab>
-            <Tabs.Tab value="challenge/solo">Challenge Solo</Tabs.Tab>
-            <Tabs.Tab value="challenge/multiplayer" disabled>
-              <HoverCard shadow="md" withArrow>
-                <HoverCard.Target>
-                  <Text>Challenge Multiplayer</Text>
-                </HoverCard.Target>
-                <HoverCard.Dropdown>
-                  <Group position="left" noWrap={true}>
-                    <Text size="sm" weight="bold">
-                      Coming soon! 🔥
-                    </Text>
-                  </Group>
-                </HoverCard.Dropdown>
-              </HoverCard>
-            </Tabs.Tab>
-          </Tabs.List>
-          <Tabs.Panel value="learn" pt="xs">
-            <Paper shadow="xl" radius="md" p="lg" withBorder>
-              <Learn gamemode="learn" />
-            </Paper>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="challenge/solo" pt="xs">
-            <Paper shadow="xl" radius="md" p="lg" withBorder>
-              <ChallengeSolo gamemode="challenge:solo" />
-            </Paper>
-          </Tabs.Panel>
-
-          <Tabs.Panel value="challenge/multiplayer" pt="xs">
-            Settings tab content
-          </Tabs.Panel>
-        </Tabs>
-      </Group>
-      <Stats data={statsLearnData.data} />
-      <Stats data={statsChallengeData.data} />
-    </Container>
+  const comingSoon = (gamemode: Gamemode) => (
+    <HoverCard shadow="md" withArrow>
+      <HoverCard.Target>
+        <Text>{gameModeFormat(gamemode)}</Text>
+      </HoverCard.Target>
+      <HoverCard.Dropdown>
+        <Group position="left" noWrap>
+          <Text size="sm" weight="bold">
+            Coming soon! 🔥
+          </Text>
+        </Group>
+      </HoverCard.Dropdown>
+    </HoverCard>
   );
+
+  const gameModeTabs = (
+    <Tabs.List>
+      {gamemodes.map((gamemode, index) => {
+        const available = availableGamemodes.includes(gamemode);
+        const disabled = { disabled: !available };
+        const tabText = available ? gameModeFormat(gamemode) : comingSoon(gamemode);
+        return (
+          <Tabs.Tab key={index} value={gamemode} {...disabled}>
+            {tabText}
+          </Tabs.Tab>
+        );
+      })}
+    </Tabs.List>
+  );
+
+  const gameModePanels = gamemodes.map((gamemode, index) => (
+    <Tabs.Panel key={index} value={gamemode} pt="xs">
+      <Paper shadow="xl" radius="md" p="lg" withBorder>
+        <GameHandler gamemode={gamemode} />
+      </Paper>
+    </Tabs.Panel>
+  ));
+
+  if (status === 'authenticated') {
+return (
+      <Container className={classes.container}>
+        <Group position="center" grow spacing="xl">
+          <Tabs value={query.activeTab as string}>
+            {gameModeTabs}
+            {gameModePanels}
+          </Tabs>
+        </Group>
+        {/* <Stats data={statsLearnData.data} />
+      <Stats data={statsChallengeData.data} /> */}
+      </Container>
+    );
+}
+  return <Loading />;
 }

@@ -1,97 +1,104 @@
 // Hooks
+import { useContext } from 'react';
 import { useToggle } from '@mantine/hooks';
-import { showNotification } from '@mantine/notifications';
+import axios from 'axios';
 import { useForm } from '@mantine/form';
 import router, { useRouter } from 'next/router';
 
 // Components
 import { Text, Paper, Group, Stack, Button, Divider, Anchor, Container } from '@mantine/core';
-import { BrandGoogle, Check, X } from 'tabler-icons-react';
+import { BrandGoogle } from 'tabler-icons-react';
+import Link from 'next/link';
 import SignUpForm from '../SignUpForm/SignUpForm';
 import LoginForm from '../LoginForm/LoginForm';
 
 // Types
-import { AuthForm, APIResponseJSON } from '../../../types/Types';
+import { AuthForm } from '../../../types/GameplayTypes';
 
 // Styles
 
 // Client-Side Constants & Functions
 import {
   capitalize,
-  request,
-  validateAuthForm,
   showError,
   showSuccess,
+  validators,
 } from '../../../lib/functions';
-import { setToken, unsetToken } from '../../../lib/auth';
-import { useFetchUser } from '../../../lib/authContext';
+import { UserContext } from '../../../lib/userContext';
+import { LoginSuccessful, UserResponse } from '../../../types/API';
+import instance from '../../../lib/api';
 
 export default function Auth() {
+  const { setUser } = useContext(UserContext) || {};
   const { push } = useRouter();
-  const [type, toggle] = useToggle<'login' | 'register'>(['login', 'register']);
+  const [type, toggleType] = useToggle<'login' | 'register'>(['login', 'register']);
+
   const form = useForm({
     initialValues: {
+      identifier: '',
       email: '',
-      nickname: '',
+      username: '',
       password: '',
       terms: false,
     } as AuthForm,
-    validate: validateAuthForm,
+    validate:
+      type === 'register'
+        ? { email: validators.email, password: validators.password, username: validators.username }
+        : {
+            password: validators.password,
+            identifier: validators.identifier,
+          },
   });
 
-  const loginUser = async ({ email, password }: AuthForm) => {
+  const loginUser = async ({ identifier, password }: AuthForm) => {
+    // Make sign up API call
     try {
-      const response = await request(
-        `${process.env.NEXT_PUBLIC_STRAPI_API}/auth/local`,
-        { data: JSON.stringify({ identifier: email, password }) },
-        { config: 'post-json' }
-      );
-      const data = await response.json();
-      console.log('LOGIN RESPONSE', data);
-      setToken(data);
-    } catch (error) {
-      showError(JSON.stringify(error));
-      console.log(error);
+      const {
+        data: { user },
+      } = await instance.post<LoginSuccessful>('/auth/local', { identifier, password });
+
+      if (setUser) {
+        console.log('setting the user', user);
+        setUser(user);
+      }
+
+      // Success
+      showSuccess('Successfully logged in');
+
+      // Redirect
+      const { pathname } = router;
+      if (pathname === '/login') push('/play');
+    } catch (error: any) {
+      if (error && error.error && error.error.message) {
+        console.error('!Error!', error.error.message || '???');
+      } else if (axios.isAxiosError(error)) {
+        console.error('Error:', error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
     }
   };
 
-  const logout = () => unsetToken();
-
   const registerUser = async (values: AuthForm) => {
+    if (form.values.terms !== true) return showError('You must accept the terms');
     try {
       // Make sign up API call
-      const { email, password, nickname } = values;
-      const response = await request(
-        `${process.env.NEXT_PUBLIC_STRAPI_API}/auth/local/register`,
-        { data: JSON.stringify({ email, nickname, password }) },
-        { config: 'post-json' }
-      );
-      const data: { jwt: string; user: any } = await response.json();
+      const { email, username, password } = values;
+      await instance.post<{ user: UserResponse }>('/auth/local/register', { email, username, password });
 
-      // Destructure data & Handle errors
-      const { error, msg } = data as APIResponseJSON;
-      if (error) return showError(error);
-      if (!msg);
-      const msgParsed = JSON.parse(msg);
-      if (!msgParsed.success)
-        return showError(msgParsed.error || 'Unexpected error. Try again later...');
-
-      console.log(55, 'data', data);
-      if (!data.jwt) return showError('Unexpected error. Try again later...');
-
-      // Successfully created an account
-      // Show an alert
-      showSuccess('Redirecting...');
-
-      // Login & Redirect
-      setTimeout(async () => {
-        await loginUser(values);
-        const { pathname } = router;
-        console.log(pathname);
-        if (pathname === '/login') push('/play').then(console.log);
-      }, 500);
-    } catch (error) {
-      console.error(error);
+      // Success
+      showSuccess('Successfully created an account. Check your email');
+      toggleType('login');
+      return true;
+    } catch (error: any) {
+      if (error && error.error && error.error.message) {
+        console.error('!Error!', error.error.message || '???');
+      } else if (axios.isAxiosError(error)) {
+        console.error('Error:', error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+      return null;
     }
   };
 
@@ -101,14 +108,15 @@ export default function Auth() {
         <Text size="lg" weight={500}>
           Welcome to <b>Geopolis</b>, {type} with
         </Text>
-
         <Group grow mb="md" mt="md">
-          <Button variant="outline" leftIcon={<BrandGoogle size={18} />}>
-            Google
-          </Button>
+          <Link passHref href={`${process.env.NEXT_PUBLIC_STRAPI_URL}/connect/google`}>
+            <Button variant="outline" leftIcon={<BrandGoogle size={18} />}>
+              Google
+            </Button>
+          </Link>
         </Group>
 
-        <Divider label="Or continue with email" labelPosition="center" mt="lg" mb="sm" />
+        <Divider label="Or continue with email/username" labelPosition="center" mt="lg" mb="sm" />
 
         <form
           onSubmit={form.onSubmit(() => {
@@ -126,7 +134,7 @@ export default function Auth() {
               component="button"
               type="button"
               color="gray"
-              onClick={() => toggle()}
+              onClick={() => toggleType()}
               size="xs"
             >
               {type === 'register'

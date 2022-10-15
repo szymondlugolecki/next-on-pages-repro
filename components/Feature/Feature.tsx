@@ -14,7 +14,7 @@ export function Feature({ title, description }: Feature) {
     <Paper className={classes.feature} shadow="lg">
       <div className={classes.leftBar}></div>
       <SimpleGrid cols={1} spacing={0} py="lg">
-        <Text size="xl" weight="bold" transform="uppercase">
+        <Text size="lg" weight="bold" transform="uppercase">
           {title}
         </Text>
         <Text size="md">{description}</Text>

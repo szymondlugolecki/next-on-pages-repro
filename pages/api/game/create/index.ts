@@ -1,97 +1,109 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import redis from '../../../../scripts/redis';
+import {
+  PostData,
+  GameType,
+  ResponseData,
+  Question,
+  Gamemode,
+  Region,
+  Dependence,
+} from '../../../../types/GameplayTypes';
 
-import { PostData, Preference, ResponseData, Question } from '../../../../types/Types';
+import QuestionsGenerator from '../../../../lib/QuestionsGenerator';
+import {
+  availableGamemodes,
+  gamemodes,
+  allRegions,
+  dependenceList,
+  shareAnswersGamemodes,
+} from '../../../../lib/constants';
 
-// 'user:ID': { id: '43434434343', email: 'john@gmail.com', nickname: 'johnny123' }
-// 'rel:nickname:NICKNAME': '43434434343'
-// 'rel:email:EMAIL': '43434434343'
+/**
+ * Returns null if no errors, returns string if error
+ * @param gamemode
+ * @param regions
+ * @param dependence
+ * @returns
+ */
+const basicValidation = (
+  gamemode: Gamemode,
+  regions: Region[],
+  dependence: Dependence
+): string | null => {
+  console.log(gamemode, regions, dependence);
+  // * general
+  if (!gamemode || !regions || !dependence) return 'Missing data';
 
-import QuestionsGenerator from '../../../../exports/QuestionsGenerator';
+  // * gamemode
+  if (!gamemodes.includes(gamemode)) return 'Invalid gamemode';
+  if (!availableGamemodes.includes(gamemode)) return 'This gamemode is not available yet';
 
-const generateResponse = (data: PostData): { response: any; message: string } => {
-  const { gamemode, preferences, preference, regions, dependence } = data;
+  // * regions
+  if (!regions.every((region) => allRegions.includes(region))) return 'Invalid region';
 
-  const questionsGenerator = new QuestionsGenerator(
-    gamemode,
-    regions,
-    preferences,
-    preference,
-    dependence
-  );
+  // * dependence
+  if (!dependenceList.includes(dependence)) return 'Invalid dependence data';
 
-  // check data
-  const valid = questionsGenerator.isValid();
-  if (!valid) return { response: null, message: 'Invalid data provided' };
-
-  // retrieve all countries
-  questionsGenerator.retrieveCoutries();
-
-  // filter by regions and dependence
-  questionsGenerator.filter();
-
-  if (!preference) return { response: null, message: 'No preference provided' };
-
-  const questions = questionsGenerator.generateQuestions();
-  const answers = questionsGenerator.correctAIList;
-  // console.log(questions);
-  if (!questions) return { response: null, message: 'Error while generating response' };
-  return { response: questions, message: 'Success' };
-
-  // switch (gamemode) {
-  //   case 'learn':
-  //     // get all countries based on regions & dependence
-  //     // generate answers based on preference
-  //     if (!preference) return { response: null, message: 'No preference provided' };
-
-  //     const questions = questionsGenerator.generateQuestions();
-  //     console.log(questions)
-  //     if (!questions) return { response: null, message: 'Error while generating response' }
-  //     return { response: questions, message: 'Success' };
-  //     break;
-  //   case 'challenge:solo':
-  //     if (!preferences) return { response: null, message: 'No preferences provided' };
-  //     const { capitalCities, map, flags } = preferences;
-  //     // const preferencesList: Preference[] = [
-  //     //   capitalCities && 'capitalCities',
-  //     //   map && 'map',
-  //     //   flags && 'flags',
-  //     // ].filter((x) => x);
-  //     return { response: null, message: ':)' };
-  //   case 'challenge:multiplayer':
-  //     return { response: null, message: 'This mode is not available yet!' };
-  //     break;
-  // }
+  return null;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
+  const throwError = (error?: string, msg?: string, code?: number) =>
+    res.status(code || 400).json({ error, msg });
+
+  const returnResponse = (msg: string, code?: number) => res.status(code || 200).json({ msg });
+
   try {
-    // validate if it is a POST
-    if (req.method !== 'POST') {
-      return res.status(200).json({ error: 'This API call only accepts POST methods' });
-    }
+    // Validate only if its a POST request
+    if (req.method !== 'POST') return throwError('Only POST method allowed');
 
-    console.log(req.body);
+    // Check if data was provided
     const data: PostData = req.body.data;
+    if (!data) return throwError('No data was provided');
 
-    const { response, message } = generateResponse(data);
+    // Destructure data
+    const { gamemode, gameTypes, regions, dependence } = data;
 
-    console.log('');
+    // Basic data validation
+    const result = basicValidation(gamemode, regions, dependence);
+    if (result) return throwError(result);
 
-    // console.log('CHECK DATA');
-    // console.log(capitalCities, map, flags, regions, dependence, gamemode);
+    // Data valid
 
-    if (!response) return res.status(200).json({ error: message });
-    return res.status(200).json({ msg: JSON.stringify({ message, questions: response }) });
+    // Generate questions
+    const questionsGenerator = new QuestionsGenerator(gamemode, regions, gameTypes, dependence);
 
-    // const questions = questionsHandler(regions, preferences, dependence);
-    // console.log('questions', questions.length);
-    // if (!questions || questions.length === 0)
-    //   return res.status(400).json({ error: 'Error occured. Bad request', msg: '' });
+    // Thorough data validation
+    const valid = questionsGenerator.isValid();
+    if (!valid) return throwError('Invalid data provided');
 
-    // @ts-ignore
-    res.status(200).json({ msg: 'Game created', error: '', questions });
+    // Initialize (filter, etc...)
+    const success = questionsGenerator.init();
+
+    // Check if initialized (filtered) successfully
+    if (!success)
+      return throwError(
+        "Couldn't retrieve enough countries to start the game. Please select more options"
+      );
+
+    const questions = questionsGenerator.generateQuestions();
+    const answers = questionsGenerator.getAnswers();
+
+    // console.log(questions);
+    if (!questions) return throwError('Error while generating questions');
+
+    console.log('git =', answers.length === questions.length);
+
+    const p = questions.map((q) => q.hint);
+    console.log(
+      'ALL UNIQUE? =',
+      p.length === Array.from(new Set(p)).length,
+      p.length,
+      Array.from(new Set(p)).length
+    );
+
+    return returnResponse(JSON.stringify({ questions }));
   } catch (error) {
     console.error(error);
   }

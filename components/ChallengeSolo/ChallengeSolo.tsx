@@ -6,18 +6,23 @@ import { useRouter } from 'next/router';
 // Components
 import { Text, Group, Button, Divider, Switch, Chip, Stack, Checkbox, Box } from '@mantine/core';
 import { Flag, Map, CurrentLocation, Crown, X } from 'tabler-icons-react';
-import { RegionsSelect } from '../RegionsSelect/RegionsSelect';
-import { DependenceChoice } from '../DependenceChoice/DependenceChoice';
+import { RegionCards } from '../RegionCards/RegionCards';
+import { DependenceCards } from '../DependenceCards/DependenceCards';
 
 // Types
-import { Region, Dependence, Gamemode, GameCreationFormChallenge } from '../../types/Types';
+import {
+  Region,
+  Dependence,
+  Gamemode,
+  GameCreationForm,
+  GameType,
+} from '../../types/GameplayTypes';
 
 // Styles
 import styles from './ChallengeSolo.styles';
 
-// Client-Side Data & Functions
-import { regions, postData, dependenceOptions } from '../../scripts/client';
-import { showNotification } from '@mantine/notifications';
+// Client-Side Constants & Functions
+import { allRegions, dependenceList, gamemodesSettings } from '../../lib/constants';
 
 export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
   const { push, query } = useRouter();
@@ -26,50 +31,47 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
   const form = useForm({
     initialValues: {
       dependence: 'all',
-      preferences: {
-        capitalCities: false,
-        map: false,
-        flags: false,
-      },
+      gameTypes: [],
       regions: ['europe'],
-    } as GameCreationFormChallenge,
+    } as GameCreationForm,
     validate: {
       dependence: (dependence: Dependence) =>
-        !dependenceOptions.includes(dependence) ? 'Choose between All/Dependent/Independent' : null,
+        !dependenceList.includes(dependence) ? 'Choose between All/Dependent/Independent' : null,
       regions: (arr: Region[]) =>
-        arr.every((region) => !regions.includes(region)) ? 'Invalid region provided' : null,
+        arr.some((region) => !allRegions.includes(region)) ? 'Invalid region provided' : null,
     },
   });
 
-  async function createGame(values: GameCreationFormChallenge) {
-    console.log('create Game', gamemode);
+  async function createGame(values: GameCreationForm) {
     try {
-      const { preferences, regions, dependence } = values;
+      const { gameTypes, regions, dependence } = values;
       const data = JSON.stringify({
         data: {
           gamemode,
-          preferences,
+          gameTypes,
           regions,
           dependence,
         },
       });
       const response = await postData('/api/game/create', data);
-      const { error, msg, questions } = await response.json();
+      const { error, msg } = await response.json();
 
       // unsuccessful
       if (error) return console.error(error);
-      console.log('msg', msg); // add a notification
 
-      console.log(questions);
+      // successful
+      const { message, questions } = JSON.parse(msg);
+      if (!questions) return console.error('No questions arrived');
+      console.log('msg', message); // add a notification
+
+      console.log('questions', questions);
     } catch (error) {
       console.error(error);
     }
   }
 
-  const allQuestionsChecked =
-    form.values.preferences.capitalCities &&
-    form.values.preferences.flags &&
-    form.values.preferences.map;
+  const settings = gamemodesSettings.find((gm) => gm.name === gamemode);
+  if (!settings) return <Text>Unknown error occured</Text>;
 
   return (
     <form onSubmit={form.onSubmit((values) => createGame(values))}>
@@ -78,50 +80,46 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
           Questions
         </Text>
 
-        <Checkbox.Group defaultValue={['capitalCities', 'map', 'flags']} required>
+        <Checkbox.Group
+          required
+          value={form.values.gameTypes}
+          onChange={(value: GameType[]) => form.setFieldValue('gameTypes', value)}
+        >
           <Checkbox
-            onChange={() =>
-              form.setFieldValue('capitalCities', !form.values.preferences.capitalCities)
-            }
-            checked={form.values.preferences.capitalCities}
             className={classes.checkbox}
             size="xl"
             ml={33}
-            value="capitalCities"
             label={
               <Group>
                 <CurrentLocation size={36} />
                 <Text size="xl">Capital Cities</Text>
               </Group>
             }
+            value="capitalCities"
           />
           <Checkbox
-            onChange={() => form.setFieldValue('map', !form.values.preferences.map)}
-            checked={form.values.preferences.map}
             className={classes.checkbox}
             size="xl"
             ml={33}
-            value="map"
             label={
               <Group>
                 <Map size={36} />
                 <Text size="xl">Map</Text>
               </Group>
             }
+            value="map"
           />
           <Checkbox
-            onChange={() => form.setFieldValue('flags', !form.values.preferences.flags)}
-            checked={form.values.preferences.flags}
             className={classes.checkbox}
             size="xl"
             ml={33}
-            value="flags"
             label={
               <Group>
                 <Flag size={36} />
                 <Text size="xl">Flags</Text>
               </Group>
             }
+            value="flags"
           />
         </Checkbox.Group>
 
@@ -131,7 +129,7 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
           Regions
         </Text>
 
-        <RegionsSelect regions={form.values.regions} setFieldValue={form.setFieldValue} />
+        <RegionCards form={form} settings={settings} />
 
         <Divider my="sm" variant="dashed" />
 
@@ -140,10 +138,7 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
         </Text>
 
         <Box>
-          <DependenceChoice
-            dependence={form.values.dependence}
-            setFieldValue={form.setFieldValue}
-          />
+          <DependenceCards form={form} settings={settings} />
         </Box>
 
         <Divider my="sm" variant="dashed" />

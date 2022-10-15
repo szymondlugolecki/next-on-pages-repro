@@ -1,5 +1,6 @@
 module.exports = {
   extends: [
+    'airbnb',
     'mantine',
     'plugin:@next/next/recommended',
     'plugin:jest/recommended',
@@ -17,5 +18,6 @@ module.exports = {
   },
   rules: {
     'react/react-in-jsx-scope': 'off',
+    'linebreak-style': ["error", "windows"]
   },
 };
