@@ -25,28 +25,6 @@ export interface APIResponseData {
   };
 }
 
-export interface UserCreatedResponse {
-  jwt?: string;
-  user?: {
-    id: number;
-    username: string;
-    email: string;
-    provider: string;
-    confirmed: boolean;
-    blocked: boolean;
-    createdAt: string;
-    updatedAt: string;
-    ducats: number;
-  };
-  error?: APIError;
-}
-
-export type JSONResponse = {
-  data?: APIResponseData | null;
-  meta?: Record<string, string>;
-  error?: APIError;
-} & UserCreatedResponse;
-
 // Game Creating
 
 export type Gamemode = 'learn' | 'challenge:solo' | 'challenge:multiplayer';

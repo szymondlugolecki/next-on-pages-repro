@@ -12,21 +12,18 @@ export interface APIError {
 export interface UserAct {
   user: UserResponse | null;
   setUser: Dispatch<SetStateAction<UserResponse | null>>;
-  loggingIn: boolean;
+  status: 'authenticated' | 'unauthenticated' | 'loading',
   doLogout: () => Promise<void>;
-  setLoggingIn: Dispatch<SetStateAction<boolean>>;
   checkLogin: () => Promise<
     | {
-        logged: boolean;
-        user: UserResponse;
-      }
+      logged: boolean;
+      user: UserResponse;
+    }
     | {
-        logged: boolean;
-        user: null;
-      }
+      logged: boolean;
+      user: null;
+    }
   >;
-  jwt: string | null;
-  setJwt: Dispatch<SetStateAction<string | null>>;
   doGoogleCallback(values: any): Promise<string | any[]>;
 }
 
@@ -41,17 +38,18 @@ export interface UserResponse {
   updatedAt: string;
   nickname: string | null;
   ducats: number;
-}
-
-export interface UserCreatedResponse {
-  jwt?: string;
-  user?: UserResponse;
-  error?: APIError;
+  avatar: string | null;
+  vip: boolean;
 }
 
 export interface LoginSuccessful {
-  jwt: string;
+  status: 'Authenticated'
   user: UserResponse;
+}
+
+export interface LogoutSuccessful {
+  message: 'ok',
+  success: true,
 }
 
 export interface AuthUnsuccessful {

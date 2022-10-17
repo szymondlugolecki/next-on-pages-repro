@@ -1,3 +1,5 @@
+import { Flag2, Map, CurrentLocation, Crown, CrownOff, Omega, Icon } from 'tabler-icons-react';
+
 import {
   StatsProps,
   GameTypeCardData,
@@ -9,8 +11,6 @@ import {
   Gamemode,
   GameModeSetting,
 } from '../types/GameplayTypes';
-
-import { Flag2, Map, CurrentLocation, Crown, CrownOff, Omega, Icon } from 'tabler-icons-react';
 
 export const geopolisFeatures: { title: string; description: string }[] = [
   {
@@ -59,17 +59,6 @@ export const storeProducts: Product[] = [
       paypal: '',
     },
     features: ['You can change your name once'],
-  },
-  {
-    id: 3,
-    name: 'Color Change',
-    payment: {
-      price: 0.59,
-      type: 'onetime',
-      stripe: 'https://buy.stripe.com/test_8wM7wwdOO42pbmw9AC',
-      paypal: '',
-    },
-    features: ['You can change the color of your name once'],
   },
   {
     id: 4,
@@ -238,6 +227,7 @@ export const statsChallengeData: StatsProps = {
 
 export const headerLinks = [
   { link: '/home', label: 'Home' },
+  { link: '/play', label: 'Play' },
   { link: '/store', label: 'Store' },
 ];
 
@@ -261,52 +251,52 @@ export const map: {
   center?: [number, number];
   scale: number;
 }[] = [
-  {
-    name: 'europe',
-    rotate: [0, 0, 0],
-    center: [14, 52],
-    scale: 910,
-  },
-  {
-    name: 'North America',
-    rotate: [0, 0, 0],
-    center: [-80, 35],
-    scale: 400,
-  },
-  {
-    name: 'South America',
-    rotate: [0, 0, 0],
-    center: [-60, -20],
-    scale: 400,
-  },
-  {
-    name: 'asia',
-    rotate: [0, 0, 0],
-    center: [80, 28],
-    scale: 400,
-  },
-  {
-    name: 'oceania',
-    rotate: [-150, 20, 3],
-    center: [0, 0],
-    scale: 600,
-  },
-  {
-    name: 'africa',
-    rotate: [0, 0, 0],
-    center: [15, 1.5],
-    scale: 400,
-  },
-  {
-    name: 'Caribbean',
-    rotate: [0, 0, 0],
-    center: [-70, 15],
-    scale: 500,
-  },
-  {
-    name: 'Central America',
-    rotate: [0, 0, 0],
-    center: [-70, 15],
-    scale: 500,
-  },
-];
+    {
+      name: 'europe',
+      rotate: [0, 0, 0],
+      center: [14, 52],
+      scale: 910,
+    },
+    {
+      name: 'North America',
+      rotate: [0, 0, 0],
+      center: [-80, 35],
+      scale: 400,
+    },
+    {
+      name: 'South America',
+      rotate: [0, 0, 0],
+      center: [-60, -20],
+      scale: 400,
+    },
+    {
+      name: 'asia',
+      rotate: [0, 0, 0],
+      center: [80, 28],
+      scale: 400,
+    },
+    {
+      name: 'oceania',
+      rotate: [-150, 20, 3],
+      center: [0, 0],
+      scale: 600,
+    },
+    {
+      name: 'africa',
+      rotate: [0, 0, 0],
+      center: [15, 1.5],
+      scale: 400,
+    },
+    {
+      name: 'Caribbean',
+      rotate: [0, 0, 0],
+      center: [-70, 15],
+      scale: 500,
+    },
+    {
+      name: 'Central America',
+      rotate: [0, 0, 0],
+      center: [-70, 15],
+      scale: 500,
+    },
+  ];

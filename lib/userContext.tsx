@@ -1,14 +1,13 @@
-import { useState, createContext, ReactNode } from 'react';
+import { useState, createContext, ReactNode, useContext } from 'react';
 import instance from './api';
-import { UserAct, UserResponse } from '../types/API';
+import { UserAct, UserResponse, LogoutSuccessful } from '../types/API';
 import { parseError } from './functions';
 
-export const UserContext = createContext<UserAct | null>(null);
+export const UserContext = createContext({} as UserAct);
 
-export default ({ children }: { children?: ReactNode }) => {
+export default ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserResponse | null>(null);
-  const [jwt, setJwt] = useState<null | string>(null);
-  const [loggingIn, setLoggingIn] = useState<boolean>(false);
+  const [status, setStatus] = useState<'authenticated' | 'unauthenticated' | 'loading'>('loading');
 
   async function doGoogleCallback(values: any) {
     try {
@@ -20,32 +19,33 @@ export default ({ children }: { children?: ReactNode }) => {
   }
 
   const doLogout = async () => {
-    const response = await instance.post('/api/auth/logout');
-    if (response.data.message !== 'success') return;
+    const response = await instance.get<LogoutSuccessful>('/auth/logout');
+    if (response.data.success !== true) return;
     setUser(null);
-    // router.push('/user/login');
   };
 
-  async function checkLogin() {
+  const checkLogin = async () => {
     try {
-      const resp = await instance.get('/users/me');
-      return { logged: true, user: resp.data.user as UserResponse };
+      const response = await instance.get('/users/me');
+      setStatus('authenticated');
+      setUser(response.data);
+      return { logged: true, user: response.data as UserResponse };
     } catch (error: any) {
+      setStatus('unauthenticated');
       return { logged: false, user: null };
     }
-  }
+  };
 
   const useract: UserAct = {
     user,
     setUser,
-    loggingIn,
+    status,
     doLogout,
-    setLoggingIn,
     checkLogin,
-    jwt,
-    setJwt,
     doGoogleCallback,
   };
 
   return <UserContext.Provider value={useract}>{children}</UserContext.Provider>;
 };
+
+export const useUser = () => useContext(UserContext);

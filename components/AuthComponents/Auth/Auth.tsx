@@ -1,5 +1,4 @@
 // Hooks
-import { useContext } from 'react';
 import { useToggle } from '@mantine/hooks';
 import axios from 'axios';
 import { useForm } from '@mantine/form';
@@ -24,12 +23,12 @@ import {
   showSuccess,
   validators,
 } from '../../../lib/functions';
-import { UserContext } from '../../../lib/userContext';
+import { useUser } from '../../../lib/userContext';
 import { LoginSuccessful, UserResponse } from '../../../types/API';
 import instance from '../../../lib/api';
 
 export default function Auth() {
-  const { setUser } = useContext(UserContext) || {};
+  const { setUser } = useUser() || {};
   const { push } = useRouter();
   const [type, toggleType] = useToggle<'login' | 'register'>(['login', 'register']);
 
@@ -69,13 +68,18 @@ export default function Auth() {
       const { pathname } = router;
       if (pathname === '/login') push('/play');
     } catch (error: any) {
+      let errorMsg: string = '';
       if (error && error.error && error.error.message) {
-        console.error('!Error!', error.error.message || '???');
+        errorMsg = error.error.message || 'Unexpected error';
+        console.error('!Error!', error);
       } else if (axios.isAxiosError(error)) {
+        errorMsg = error.message;
         console.error('Error:', error.message);
       } else {
+        errorMsg = 'Unexpected error';
         console.error('Unexpected error:', error);
       }
+      showError(errorMsg);
     }
   };
 
@@ -91,14 +95,19 @@ export default function Auth() {
       toggleType('login');
       return true;
     } catch (error: any) {
+      let errorMsg: string = '';
       if (error && error.error && error.error.message) {
-        console.error('!Error!', error.error.message || '???');
+        errorMsg = error.error.message || 'Unexpected error';
+        console.error('!Error!', error);
       } else if (axios.isAxiosError(error)) {
+        errorMsg = error.message;
         console.error('Error:', error.message);
       } else {
+        errorMsg = 'Unexpected error';
         console.error('Unexpected error:', error);
       }
-      return null;
+      showError(errorMsg);
+      return errorMsg;
     }
   };
 
