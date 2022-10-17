@@ -1,12 +1,14 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Header, Container, Group, Burger, Paper, Transition, Text, Button } from '@mantine/core';
+import { Header, Container, Group, Burger, Paper, Transition, Button, Menu, Text, NavLink } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
-import { Globe } from 'tabler-icons-react';
-import { UserContext } from '../../lib/userContext';
+import { Globe, User, Settings, ChartLine, Logout } from 'tabler-icons-react';
+import { useUser } from '../../lib/userContext';
 
 import styles from './Header.styles';
 import instance from '../../lib/api';
+import { showInfo, showSuccess } from '../../lib/functions';
+import { UserResponse } from '../../types/API';
 
 interface HeaderLayout {
   links: { link: string; label: string }[];
@@ -15,7 +17,7 @@ interface HeaderLayout {
 const HEADER_HEIGHT = 60;
 
 export function HeaderLayout({ links }: HeaderLayout) {
-  const { user } = useContext(UserContext) || {};
+  const { user } = useUser() || {};
   const [opened, toggleOpened] = useToggle([false, true]);
   const [active, setActive] = useState(links[0].link);
   const { classes, cx } = styles();
@@ -45,8 +47,9 @@ export function HeaderLayout({ links }: HeaderLayout) {
 
   const getMe = async () => {
     try {
-      const { status, data } = await instance.get('/users/me');
-      console.log(status, 'data', data);
+      const { data } = await instance.get<UserResponse>('/users/me');
+      showInfo(`Your name is ${data.username}`);
+      console.log('data', data);
     } catch (error: any) {
       console.error(error.message);
     }
@@ -54,14 +57,43 @@ export function HeaderLayout({ links }: HeaderLayout) {
 
   const logOut = async () => {
     try {
-      const { status, data } = await instance.get('/auth/logout');
-      console.log('Logout', status, data);
+      await instance.get('/auth/logout');
+      showSuccess('Successfully logged out');
     } catch (error: any) {
       console.error(error.message);
     }
   };
 
-  console.log('user', user);
+  const UserMenu = () => (
+  <Menu shadow="md" width={200} transition="pop">
+    <Menu.Target>
+      <Button>{user?.username}</Button>
+    </Menu.Target>
+
+    <Menu.Dropdown>
+      <Menu.Label>Your account</Menu.Label>
+      <Menu.Item p={1}>
+        <Link href="/profile/me" passHref>
+          <NavLink label="Profile" icon={<User size={14} />} />
+        </Link>
+      </Menu.Item>
+      <Menu.Item p={0}>
+        <Link href="/profile/me/stats" passHref>
+          <NavLink label="Statistics" icon={<ChartLine size={14} />} />
+        </Link>
+      </Menu.Item>
+      <Menu.Item p={0}>
+        <Link href="/settings" passHref>
+          <NavLink label="Settings" icon={<Settings size={14} />} />
+        </Link>
+      </Menu.Item>
+
+      <Menu.Divider />
+
+      <Menu.Label>Danger zone</Menu.Label>
+      <Menu.Item color="red" icon={<Logout size={14} />} component="button" onClick={logOut}>Logout</Menu.Item>
+    </Menu.Dropdown>
+  </Menu>);
 
   return (
     <Header height={HEADER_HEIGHT} className={classes.root}>
@@ -71,7 +103,7 @@ export function HeaderLayout({ links }: HeaderLayout) {
           <Button onClick={logOut}>Log out</Button>
           <Button onClick={getMe}>Get me</Button>
           {items}
-          {user && <Text>{user.email}</Text>}
+          {user && UserMenu()}
           {!user && 'Not logged in'}
         </Group>
 
