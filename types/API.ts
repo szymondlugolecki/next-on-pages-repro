@@ -9,20 +9,22 @@ export interface APIError {
 
 // User
 
+export type UserStatus = 'authenticated' | 'unauthenticated' | 'loading';
+
 export interface UserAct {
   user: UserResponse | null;
   setUser: Dispatch<SetStateAction<UserResponse | null>>;
-  status: 'authenticated' | 'unauthenticated' | 'loading',
+  status: 'authenticated' | 'unauthenticated' | 'loading';
   doLogout: () => Promise<void>;
   checkLogin: () => Promise<
     | {
-      logged: boolean;
-      user: UserResponse;
-    }
+        logged: boolean;
+        user: UserResponse;
+      }
     | {
-      logged: boolean;
-      user: null;
-    }
+        logged: boolean;
+        user: null;
+      }
   >;
   doGoogleCallback(values: any): Promise<string | any[]>;
 }
@@ -43,13 +45,13 @@ export interface UserResponse {
 }
 
 export interface LoginSuccessful {
-  status: 'Authenticated'
+  status: 'Authenticated';
   user: UserResponse;
 }
 
 export interface LogoutSuccessful {
-  message: 'ok',
-  success: true,
+  message: 'ok';
+  success: true;
 }
 
 export interface AuthUnsuccessful {

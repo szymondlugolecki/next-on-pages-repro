@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Header, Container, Burger, Paper, Transition, Menu, Group, Avatar, UnstyledButton } from '@mantine/core';
+import {
+  Header,
+  Container,
+  Burger,
+  Paper,
+  Transition,
+  Menu,
+  Group,
+  Avatar,
+  UnstyledButton,
+  Button,
+} from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
 import { Globe, User, Settings, ChartLine, Logout } from 'tabler-icons-react';
-import { useUser } from '../../lib/userContext';
+
+import { signOut, useSession } from 'next-auth/react';
 
 import styles from './Header.styles';
-import { showError, showSuccess } from '../../lib/functions';
 
 const HEADER_HEIGHT = 60;
 
 export function HeaderLayout({ links }: { links: { link: string; label: string }[] }) {
-  const { user, doLogout } = useUser() || {};
   const { push } = useRouter();
+  const { data: session } = useSession();
   const [opened, toggleOpened] = useToggle([false, true]);
   const [active, setActive] = useState(links[0].link);
   const { classes, cx } = styles();
@@ -51,38 +62,70 @@ export function HeaderLayout({ links }: { links: { link: string; label: string }
   //   }
   // };
 
-  const logOut = async () => {
-    try {
-      await doLogout();
-      showSuccess('Successfully logged out');
-    } catch (error: any) {
-      showError('Unexpected error');
-    }
-  };
+  const { user } = session || {};
 
-  const UserMenu = () => user && (
-    <Menu shadow="md" width={200}>
-      <Menu.Target>
-        <UnstyledButton>
-          <Avatar src={user.avatar} alt="Your avatar" size={42} radius="xl" color="blue" />
-        </UnstyledButton>
-      </Menu.Target>
-      <Menu.Dropdown>
-        <Menu.Label>{user.username}</Menu.Label>
-        <Menu.Item component="button" icon={<User size={14} />} onClick={() => push(`/profile/${user.nickname}`)}>Profile</Menu.Item>
-        <Menu.Item component="button" icon={<ChartLine size={14} />} onClick={() => push(`/profile/${user.nickname}/stats`)}>Statistics</Menu.Item>
-        <Menu.Item component="button" icon={<Settings size={14} />} onClick={() => push('/settings')}>Settings</Menu.Item>
-        <Menu.Divider />
-        <Menu.Item color="red" icon={<Logout size={14} />} component="button" onClick={logOut}>Logout</Menu.Item>
-      </Menu.Dropdown>
-    </Menu>);
+  function UserMenu() {
+    return (
+      user && (
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <UnstyledButton>
+              <Avatar src={user.image} alt="Your avatar" size={42} radius="xl" color="blue" />
+            </UnstyledButton>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>{user.name}</Menu.Label>
+            <Menu.Item
+              component="button"
+              icon={<User size={14} />}
+              onClick={() => push(`/profile/${user.name}`)}
+            >
+              Profile
+            </Menu.Item>
+            <Menu.Item
+              component="button"
+              icon={<ChartLine size={14} />}
+              onClick={() => push(`/profile/${user.name}/stats`)}
+            >
+              Statistics
+            </Menu.Item>
+            <Menu.Item
+              component="button"
+              icon={<Settings size={14} />}
+              onClick={() => push('/settings')}
+            >
+              Settings
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item
+              color="red"
+              icon={<Logout size={14} />}
+              component="button"
+              onClick={() => signOut({ redirect: true, callbackUrl: '/home' })}
+            >
+              Logout
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      )
+    );
+  }
+
+  const getSomething = () => {
+    fetch('http://localhost:8787/api/auth/me').then(async (res) => {
+      const response = await res.json();
+      console.log(response);
+    });
+  };
 
   return (
     <Header height={HEADER_HEIGHT} className={classes.root}>
       <Container className={classes.header}>
         <Globe />
         <Group spacing={5} className={classes.links}>
-          {/* <Button onClick={getMe} size="md">Get me</Button> */}
+          <Button onClick={getSomething} size="md">
+            Get me
+          </Button>
           {items}
           {user && UserMenu()}
           {!user && 'Not logged in'}

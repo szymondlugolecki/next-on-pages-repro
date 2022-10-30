@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 
 // Components
 import { Container, Group, Tabs, HoverCard, Text, Paper } from '@mantine/core';
+import { useSession } from 'next-auth/react';
 import { Loading } from '../../components/Loading/Loading';
 import { GameHandler } from '../../components/GameHandler/GameHandler';
 
@@ -11,23 +12,16 @@ import { GameHandler } from '../../components/GameHandler/GameHandler';
 // Styles
 import styles from './Play.styles';
 
-import {
-  availableGamemodes,
-  gamemodes,
-} from '../../lib/constants';
+import { availableGamemodes, gamemodes } from '../../lib/constants';
 import { Gamemode } from '../../types/GameplayTypes';
 import { capitalize } from '../../lib/functions';
-import AuthHook from '../../lib/authHook';
 
 export default function PlayPage() {
   const { classes } = styles();
-  const { push, query } = useRouter();
+  const { query } = useRouter();
+  const { status } = useSession();
 
-  const { status } = AuthHook({
-    onUnauthenticated() {
-      push('/login');
-    },
-  });
+  if (status === 'loading') return <Loading />;
 
   const gameModeFormat = (gamemode: Gamemode) => capitalize(gamemode.split(':').join(' '));
 
@@ -69,19 +63,16 @@ export default function PlayPage() {
     </Tabs.Panel>
   ));
 
-  if (status === 'authenticated') {
-return (
-      <Container className={classes.container}>
-        <Group position="center" grow spacing="xl">
-          <Tabs value={query.activeTab as string}>
-            {gameModeTabs}
-            {gameModePanels}
-          </Tabs>
-        </Group>
-        {/* <Stats data={statsLearnData.data} />
+  return (
+    <Container className={classes.container}>
+      <Group position="center" grow spacing="xl">
+        <Tabs value={query.activeTab as string}>
+          {gameModeTabs}
+          {gameModePanels}
+        </Tabs>
+      </Group>
+      {/* <Stats data={statsLearnData.data} />
       <Stats data={statsChallengeData.data} /> */}
-      </Container>
-    );
-}
-  return <Loading />;
+    </Container>
+  );
 }

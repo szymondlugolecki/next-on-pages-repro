@@ -19,8 +19,9 @@ import {
   SimpleGrid,
   Modal,
 } from '@mantine/core';
-import { Hint } from '../Hint/Hint';
 import Image from 'next/image';
+import { Reset } from '@mantine/form/lib/types';
+import { Hint } from '../Hint/Hint';
 import { Answers } from '../Answers/Answers';
 
 // Types
@@ -33,7 +34,6 @@ import type {
   Question,
 } from '../../types/GameplayTypes';
 import { AfterGameScreen } from '../AfterGameScreen/AfterGameScreen';
-import { Reset } from '@mantine/form/lib/types';
 import { gameDataToStats } from '../../lib/functions';
 
 // Styles

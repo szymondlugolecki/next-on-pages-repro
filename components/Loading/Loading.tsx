@@ -2,7 +2,7 @@ import { Container, Center, Loader } from '@mantine/core';
 
 import styles from './Loading.styles';
 
-export const Loading = () => {
+export function Loading() {
   const { classes } = styles();
   return (
     <Container size="xs" className={classes.container}>
@@ -11,4 +11,4 @@ export const Loading = () => {
       </Center>
     </Container>
   );
-};
+}

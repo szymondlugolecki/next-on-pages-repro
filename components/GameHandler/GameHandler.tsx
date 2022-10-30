@@ -1,8 +1,6 @@
 // Hooks
 import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm, UseFormReturnType } from '@mantine/form';
-import { useRouter } from 'next/router';
+import { useForm } from '@mantine/form';
 
 // Components
 import { Text } from '@mantine/core';
@@ -10,33 +8,20 @@ import { GameCreator } from '../GameCreator/GameCreator';
 import { Quiz } from '../Quiz/Quiz';
 
 // Types
-import type {
-  Question,
-  GameCreationForm,
-  Dependence,
-  Region,
-  Gamemode,
-} from '../../types/GameplayTypes';
+import type { Question, GameCreationForm, Gamemode } from '../../types/GameplayTypes';
 
 // Styles
 
 // Client-Side Constants & Functions
-import {
-  allRegions,
-  gameModeCardData,
-  gamemodesSettings,
-  gameTypesList,
-} from '../../lib/constants';
+import { allRegions, gamemodesSettings, gameTypesList } from '../../lib/constants';
 import { validateGameCreationForm } from '../../lib/functions';
-import { Settings } from 'tabler-icons-react';
 
 export function GameHandler({ gamemode }: { gamemode: Gamemode }) {
   const [gameOn, setGameOn] = useState<boolean>(false);
   const [questions, setQuestions] = useState<Question[]>();
 
   const [answersList, setAnswersList] = useState<{ index: number; time: number }[]>([]);
-  const addAnswer = (answer: { index: number; time: number }) =>
-    setAnswersList((value) => [...value, answer]);
+  const addAnswer = (answer: { index: number; time: number }) => setAnswersList((value) => [...value, answer]);
 
   const settings = gamemodesSettings.find((gm) => gm.name === gamemode);
   if (!settings) return <Text>Unknown error occured</Text>;
@@ -58,7 +43,7 @@ export function GameHandler({ gamemode }: { gamemode: Gamemode }) {
   };
 
   // if game does not exist - render game creator
-  if (!gameOn)
+  if (!gameOn) {
     return (
       <GameCreator
         gamemode={gamemode}
@@ -67,9 +52,10 @@ export function GameHandler({ gamemode }: { gamemode: Gamemode }) {
         setQuestions={setQuestions}
       />
     );
+  }
 
   // if gameOn & questions exist - render game
-  if (questions)
+  if (questions) {
     return (
       <Quiz
         gamemode={gamemode}
@@ -79,6 +65,7 @@ export function GameHandler({ gamemode }: { gamemode: Gamemode }) {
         gameReset={gameReset}
       />
     );
+  }
 
   // handle error
   return <Text>Error! No questions found</Text>;

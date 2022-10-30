@@ -1,8 +1,8 @@
 // Hooks
-import { useRouter } from 'next/router';
 
 // Components
 import { Container, Grid } from '@mantine/core';
+import { useSession } from 'next-auth/react';
 import { StoreProduct } from '../components/StoreProduct/StoreProduct';
 import { Loading } from '../components/Loading/Loading';
 
@@ -13,20 +13,12 @@ import styles from './Store.styles';
 
 // Client-Side Constants & Functions
 import { storeProducts } from '../lib/constants';
-import AuthHook from '../lib/authHook';
 
 export default function StorePage() {
   const { classes } = styles();
+  const { status } = useSession();
 
-  const { push } = useRouter();
-
-  const { user, status } = AuthHook({
-    onUnauthenticated() {
-      push('/login');
-    },
-  });
-
-  if (!user || status !== 'authenticated') return <Loading />;
+  if (status === 'loading') return <Loading />;
 
   return (
     <Container className={classes.inner}>

@@ -1,33 +1,30 @@
 import CountriesData from 'world-countries';
 import {
-  Region,
-  GameType,
-  Question,
   Dependence,
   Gamemode,
+  GameType,
+  Question,
+  Region,
   ShrinkedCountry,
   Subregion,
 } from '../types/GameplayTypes';
 
 import {
-  challengeQuestionLimit,
-  gamemodes,
   allRegions,
-  gameTypesList,
-  dependenceList,
-  shareAnswersGamemodes,
   availableGamemodes,
+  challengeQuestionLimit,
+  gameTypesList,
+  shareAnswersGamemodes,
 } from './constants';
 
-import { capitalize, shuffle, randomNumber, randomElement } from './functions';
-import { count } from 'console';
+import { randomElement, shuffle } from './functions';
 
 import countriesWithTopology from '../public/countriesWithTopology.json';
 
 const gameTypeFilter = (gameType: GameType, country: ShrinkedCountry) => {
   if (gameType === 'capitalCities' && country.capital) return true;
-  else if (gameType === 'flags' && country.flag) return true;
-  else if (gameType === 'map' && country.cca2) return true;
+  if (gameType === 'flags' && country.flag) return true;
+  if (gameType === 'map' && country.cca2) return true;
 };
 
 const countryData = CountriesData.map(
@@ -39,24 +36,33 @@ const countryData = CountriesData.map(
     subregion: subregion as Subregion,
     flag,
     cca2,
-  })
+  }),
 );
 
 export default class QuestionsGenerator {
   private limit: number | null = null;
+
   private gamemode: Gamemode;
+
   private gameTypes: GameType[];
+
   private regions: Region[];
+
   private dependence: Dependence;
+
   private countries: ShrinkedCountry[];
+
   private mappableCountries!: ShrinkedCountry[];
+
   private correctAIList: number[] = [];
+
   public questions: Question[] = [];
+
   constructor(
     gamemode: Gamemode,
     regions: Region[],
     gameTypes: GameType[],
-    dependence: Dependence
+    dependence: Dependence,
   ) {
     this.gamemode = gamemode;
     this.regions = regions;
@@ -96,9 +102,9 @@ export default class QuestionsGenerator {
 
     // Preferably the same subregion
     // If too few countries, choose region instead (Slovakia - Central Europe[1])
-    if (incorrectCountries.filter(bySubregion).length < 3)
+    if (incorrectCountries.filter(bySubregion).length < 3) {
       incorrectCountries = incorrectCountries.filter(byRegion);
-    else incorrectCountries = incorrectCountries.filter(bySubregion);
+    } else incorrectCountries = incorrectCountries.filter(bySubregion);
 
     // Filter occurences that dont have a capital city/flag
     incorrectCountries = incorrectCountries.filter((c) => gameTypeFilter(gameType, c));
@@ -127,14 +133,14 @@ export default class QuestionsGenerator {
    * @param {ShrinkedCountry} country
    * @param {GameType} gameType
    */
-  private generateQuestion(country: ShrinkedCountry, gameType: GameType): [Question, number] {
+  private generateQuestion = (country: ShrinkedCountry, gameType: GameType): [Question, number] => {
     const countryName = country.name.common;
 
     const incorrectAnswers = this.getIncorrectAnswers(country, gameType);
 
-    let correctAnswerText: string = '',
-      hint: string = '',
-      answers: string[] = [];
+    let correctAnswerText: string = '';
+    let hint: string = '';
+    let answers: string[] = [];
 
     // Generating answers
     // Hint is based on what you answer a question
@@ -174,7 +180,7 @@ export default class QuestionsGenerator {
     if (answers.find((a) => !a)) console.log('WARNING', 'answers', answers, country.name.common);
 
     return [response, correctAI];
-  }
+  };
 
   /** Generates and returns game questions
    */
@@ -264,21 +270,22 @@ export default class QuestionsGenerator {
     const filterByRegion = ({ region }: ShrinkedCountry) => this.regions.includes(region);
     const filterByDependence = ({ independent }: ShrinkedCountry) => {
       if (this.dependence === 'all') return true;
-      else if (this.dependence === 'dependent' && independent === false) return true;
-      else if (this.dependence === 'independent' && independent === true) return true;
+      if (this.dependence === 'dependent' && independent === false) return true;
+      if (this.dependence === 'independent' && independent === true) return true;
     };
 
     this.countries = this.countries.filter(filterByRegion).filter(filterByDependence);
     this.mappableCountries = this.countries.filter(({ cca2 }) =>
-      countriesWithTopology.includes(cca2)
+      countriesWithTopology.includes(cca2),
     );
 
     console.log('Countries:', this.countries.length, 'Mappable:', this.mappableCountries.length);
 
     if (this.countries.length === 0 || this.mappableCountries.length === 0) return false;
-    if (this.limit)
+    if (this.limit) {
       if (this.countries.length < this.limit || this.mappableCountries.length < this.limit)
         return false;
+    }
 
     return true;
   }

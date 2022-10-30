@@ -30,15 +30,14 @@ export function Map({
   return (
     <ComposableMap projectionConfig={configByRegion} projection="geoEqualEarth">
       <Geographies geography={geoURL}>
-        {({ geographies }) =>
-          geographies.map((geo) => {
+        {({ geographies }) => geographies.map((geo) => {
             if (geo.properties['Alpha-2'] === hint) console.log(geo.properties['Alpha-2']);
             return (
-              <Geography
+            <Geography
                 key={geo.rsmKey}
                 geography={geo}
                 fill={
-                  [geo.properties['iso_a2_eh'], geo.properties['iso_a2']].includes(hint)
+                  [geo.properties.iso_a2_eh, geo.properties.iso_a2].includes(hint)
                     ? '#fa5252'
                     : '#69db7c'
                 }
@@ -46,8 +45,7 @@ export function Map({
                 strokeWidth={0.75}
               />
             );
-          })
-        }
+          })}
       </Geographies>
     </ComposableMap>
   );

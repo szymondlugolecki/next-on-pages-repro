@@ -2,7 +2,7 @@ import { createStyles } from '@mantine/core';
 
 const HEADER_HEIGHT = 60;
 const EXTRA_HEIGHT = 16;
-const margin = HEADER_HEIGHT * 3 + EXTRA_HEIGHT * 2 + 'px';
+const margin = `${HEADER_HEIGHT * 3 + EXTRA_HEIGHT * 2}px`;
 
 export default createStyles((theme) => ({
   container: {

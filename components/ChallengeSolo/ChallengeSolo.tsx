@@ -35,10 +35,8 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
       regions: ['europe'],
     } as GameCreationForm,
     validate: {
-      dependence: (dependence: Dependence) =>
-        !dependenceList.includes(dependence) ? 'Choose between All/Dependent/Independent' : null,
-      regions: (arr: Region[]) =>
-        arr.some((region) => !allRegions.includes(region)) ? 'Invalid region provided' : null,
+      dependence: (dependence: Dependence) => (!dependenceList.includes(dependence) ? 'Choose between All/Dependent/Independent' : null),
+      regions: (arr: Region[]) => (arr.some((region) => !allRegions.includes(region)) ? 'Invalid region provided' : null),
     },
   });
 

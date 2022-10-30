@@ -59,7 +59,9 @@ export function RegionCards({ form, settings }: RegionsSelectTypes) {
         )}
       >
         <Text weight={500} size="xl">
-          • {capitalize(region)}
+          • 
+{' '}
+{capitalize(region)}
         </Text>
       </UnstyledButton>
     );

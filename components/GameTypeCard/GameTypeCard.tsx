@@ -28,11 +28,11 @@ import styles from './GameTypeCard.styles';
 import { gameModeCardData } from '../../lib/constants';
 import { addClasses } from '../../lib/functions';
 
-export const GameTypeCard = ({
+export function GameTypeCard({
   settings,
   cardData: { title, value, Icon },
   form,
-}: GameTypeCardProps) => {
+}: GameTypeCardProps) {
   const { classes } = styles();
   const gameTypesSelected = form.values.gameTypes || null;
   const selected = gameTypesSelected && gameTypesSelected.includes(value);
@@ -44,10 +44,8 @@ export const GameTypeCard = ({
       // if already selected - unselect
       if (alreadyExists) form.removeListItem('gameTypes', gameTypesSelected.indexOf(value));
       // if not selected - select
-      else {
-        if (!form.values.gameTypes) form.setFieldValue('gameTypes', [value]);
-        else form.insertListItem('gameTypes', value);
-      }
+      else if (!form.values.gameTypes) form.setFieldValue('gameTypes', [value]);
+      else form.insertListItem('gameTypes', value);
     } else form.setFieldValue('gameTypes', [value]);
   };
 
@@ -57,7 +55,7 @@ export const GameTypeCard = ({
       onClick={() => handleSelection()}
       className={addClasses(
         classes.item,
-        selected ? classes.gameTypeCardSelected : classes.gameTypeCard
+        selected ? classes.gameTypeCardSelected : classes.gameTypeCard,
       )}
     >
       <Icon />
@@ -66,7 +64,7 @@ export const GameTypeCard = ({
       </Text>
     </UnstyledButton>
   );
-};
+}
 
 {
   /* <Card

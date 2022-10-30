@@ -5,13 +5,13 @@ import { useForm } from '@mantine/form';
 import { useRouter } from 'next/router';
 
 // Components
+import { Container, Paper } from '@mantine/core';
+import { GetServerSideProps } from 'next';
 import { ChallengeSolo } from '../../../components/ChallengeSolo/ChallengeSolo';
 import { Loading } from '../../../components/Loading/Loading';
-import { Container, Paper } from '@mantine/core';
 
 // Types
 import { Region } from '../../../types/GameplayTypes';
-import { GetServerSideProps } from 'next';
 
 // Styles
 import styles from './PlayGameMode.styles';

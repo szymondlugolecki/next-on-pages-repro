@@ -1,6 +1,6 @@
-import { CountryName } from 'world-countries';
 import { UseFormReturnType } from '@mantine/form';
 import { Icon } from 'tabler-icons-react';
+import { CountryName } from 'world-countries';
 
 export type HTTPMethods = 'GET' | 'POST' | 'PUT' | 'DELETE';
 export type APIRequestConfig = 'post-json' | 'get';
@@ -164,12 +164,15 @@ export interface UserDB {
   created: EpochTimeStamp;
 }
 
-export interface AuthForm {
-  identifier: string;
+export interface RegisterForm {
   email: string;
-  username: string;
   password: string;
   terms: boolean;
+}
+
+export interface LoginForm {
+  email: string;
+  password: string;
 }
 
 interface ValidationError<T> {

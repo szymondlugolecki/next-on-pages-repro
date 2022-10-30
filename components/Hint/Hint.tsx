@@ -1,26 +1,21 @@
 // Hooks
-import { useState } from 'react';
 // import Image from 'next/image';
 
 // Components
-import { Text, Center, Box, Container, AspectRatio, Image } from '@mantine/core';
+import { Center, Container, Image, Text } from '@mantine/core';
 import { Map } from '../Map/Map';
 // @ts-ignore
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps';
 
 // Types
 import type { GameType, Region, Subregion } from '../../types/GameplayTypes';
 
 // Styles
-import styles from './Hint.styles';
 
 // Client-Side Constants & Functions
-import { map, defaultConfig, geoURL } from '../../lib/constants';
 
 export function Hint({
   gameType,
   hint,
-  index,
   regionData: { region, subregion },
 }: {
   gameType: GameType;
@@ -32,25 +27,24 @@ export function Hint({
     subregion: Subregion;
   };
 }) {
-  const { classes } = styles();
-
   let hintElement;
 
   if (gameType === 'map') hintElement = <Map hint={hint} region={region} subregion={subregion} />;
-  else if (gameType === 'capitalCities')
+  else if (gameType === 'capitalCities') {
     hintElement = (
-      <Text size="xl" weight={700}>
+      <Text size='xl' weight={700}>
         {hint}
       </Text>
     );
-  else if (gameType === 'flags')
+  } else if (gameType === 'flags') {
     hintElement = (
-      <Container size="xl" style={{ display: 'block', position: 'relative' }}>
-        <Image radius="md" src={`https://countryflagsapi.com/png/${hint}`} alt="Country Flag" />
+      <Container size='xl' style={{ display: 'block', position: 'relative' }}>
+        <Image radius='md' src={`https://countryflagsapi.com/png/${hint}`} alt='Country Flag' />
       </Container>
     );
+  }
 
-  return <Center py="xl">{hintElement}</Center>;
+  return <Center py='xl'>{hintElement}</Center>;
 }
 
 /**

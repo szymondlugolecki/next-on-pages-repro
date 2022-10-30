@@ -18,6 +18,7 @@ import {
   Container,
   Box,
 } from '@mantine/core';
+import { Reset } from '@mantine/form/lib/types';
 import { Hint } from '../Hint/Hint';
 
 import { Answers } from '../Answers/Answers';
@@ -31,7 +32,6 @@ import type {
   GameCreationForm,
   Question,
 } from '../../types/GameplayTypes';
-import { Reset } from '@mantine/form/lib/types';
 
 // Styles
 import styles from './AfterGameScreen.styles';

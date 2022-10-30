@@ -14,8 +14,7 @@ import {
   Anchor,
 } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
-import { CreditCard } from 'tabler-icons-react';
-import { BrandPaypal } from 'tabler-icons-react';
+import { CreditCard, BrandPaypal } from 'tabler-icons-react';
 
 import type { Product } from '../../types/GameplayTypes';
 
@@ -31,7 +30,9 @@ import styles from '../../pages/Store.styles';
 //     features: VIPFeatures,
 //   },
 
-export function StoreProduct({ product: { id, name, payment, features } }: { product: Product }) {
+export function StoreProduct({ product: {
+ id, name, payment, features 
+} }: { product: Product }) {
   const [paymentOptsShown, showPaymentOpts] = useToggle([false, true]);
   const { classes } = styles();
 
@@ -60,7 +61,8 @@ export function StoreProduct({ product: { id, name, payment, features } }: { pro
           <Text size={56} weight="bold">
             ${payment.price}
           </Text>
-          {subscription && <Text>per month billed {subTimespan}</Text>}
+          {subscription && <Text>
+per month billed{subTimespan}</Text>}
           {!subscription && <Text>one-time payment</Text>}
         </Stack>
       </Stack>

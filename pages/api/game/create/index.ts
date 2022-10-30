@@ -49,8 +49,7 @@ const basicValidation = (
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
-  const throwError = (error?: string, msg?: string, code?: number) =>
-    res.status(code || 400).json({ error, msg });
+  const throwError = (error?: string, msg?: string, code?: number) => res.status(code || 400).json({ error, msg });
 
   const returnResponse = (msg: string, code?: number) => res.status(code || 200).json({ msg });
 
@@ -59,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     if (req.method !== 'POST') return throwError('Only POST method allowed');
 
     // Check if data was provided
-    const data: PostData = req.body.data;
+    const { data } = req.body;
     if (!data) return throwError('No data was provided');
 
     // Destructure data
@@ -82,10 +81,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     const success = questionsGenerator.init();
 
     // Check if initialized (filtered) successfully
-    if (!success)
-      return throwError(
-        "Couldn't retrieve enough countries to start the game. Please select more options"
-      );
+    if (!success) {
+    {
+return throwError(
+      "Couldn't retrieve enough countries to start the game. Please select more options",
+    );
+}
 
     const questions = questionsGenerator.generateQuestions();
     const answers = questionsGenerator.getAnswers();
@@ -113,6 +114,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 TODO:
  * LEARN GAMEMODE:
-    > choice: mixed questions | 1 type (all answers [user selects flags: quizes him for all world flags]) |  
+    > choice: mixed questions | 1 type (all answers [user selects flags: quizes him for all world flags]) |
 
 */

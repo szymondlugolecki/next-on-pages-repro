@@ -2,32 +2,33 @@
 import { useRouter } from 'next/router';
 
 // Components
-import { Avatar, Container, Group, Stack, Text, Highlight } from '@mantine/core';
+import { Container, Group, Stack, Text } from '@mantine/core';
+import { useSession } from 'next-auth/react';
 import { Loading } from '../../components/Loading/Loading';
 
 // Types
 
 // Styles
 
-import AuthHook from '../../lib/authHook';
-
 export default function ProfilePage() {
   const { push } = useRouter();
 
-  const { user, status } = AuthHook({
+  const { status } = useSession({
+    required: true,
     onUnauthenticated() {
       push('/login');
     },
   });
 
-  if (!user || status !== 'authenticated') return <Loading />;
+  if (status === 'loading') return <Loading />;
 
-  const joinedDate = new Intl.DateTimeFormat([], { dateStyle: 'long' }).format(new Date(user.createdAt)) || '-';
+  // const joinedDate = new Intl.DateTimeFormat([], { dateStyle: 'long' }).format(new Date(user.metadata.creationTime)) || '-';
+  // const joinedDate = session.user.metadata.creationTime || '-';
 
-    return (
-      <Container>
-        <Group position="left">
-            {user.vip && (
+  return (
+    <Container>
+      <Group position="left">
+        {/* {user.vip && (
               <Highlight
                 align="center"
                 highlight="VIP"
@@ -42,20 +43,20 @@ export default function ProfilePage() {
                 Status: VIP 👑
               </Highlight>
             )}
-            {!user.vip && (<Text color="grey">Status: Regular</Text>)}
-        </Group>
-        <Group position="left">
-            <Avatar src={user.avatar} size={240} radius="md" color="blue" />
-            <Stack align="flex-start" justify="flex-start">
-                <Text>{user.nickname}</Text>
-                <Text>Member since • {joinedDate}</Text>
-            </Stack>
-        </Group>
-        <Group position="apart" px="xl">
-            <Text>Games won</Text>
-            <Text>Estimated Playtime</Text>
-            <Text>Average Response Time</Text>
-        </Group>
-      </Container>
-    );
+            {!user.vip && (<Text color="grey">Status: Regular</Text>)} */}
+      </Group>
+      <Group position="left">
+        {/* <Avatar src={user.photoURL} size={240} radius="md" color="blue" /> */}
+        <Stack align="flex-start" justify="flex-start">
+          {/* <Text>{user.displayName}</Text> */}
+          {/* <Text>Member since • {joinedDate}</Text> */}
+        </Stack>
+      </Group>
+      <Group position="apart" px="xl">
+        <Text>Games won</Text>
+        <Text>Estimated Playtime</Text>
+        <Text>Average Response Time</Text>
+      </Group>
+    </Container>
+  );
 }

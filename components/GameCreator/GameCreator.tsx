@@ -13,7 +13,6 @@ import { DependenceCards } from '../DependenceCards/DependenceCards';
 import type { Gamemode, GameCreationForm, Question } from '../../types/GameplayTypes';
 
 // Styles
-import styles from './GameCreator.styles';
 
 // Client-Side Constants & Functions
 import { gameModeCardData, gamemodesSettings } from '../../lib/constants';
@@ -84,7 +83,7 @@ export function GameCreator({
           <Button
             variant="filled"
             type="submit"
-            {...{ disabled: gamemode.startsWith('challenge') && ready === false ? true : false }}
+            {...{ disabled: !!(gamemode.startsWith('challenge') && ready === false) }}
           >
             START
           </Button>

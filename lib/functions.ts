@@ -1,16 +1,15 @@
-import axios from 'axios';
 import { showNotification } from '@mantine/notifications';
-import { X, Check, InfoCircle, AlertTriangle } from 'tabler-icons-react';
-import {
+import { AlertTriangle, Check, InfoCircle, X } from 'tabler-icons-react';
+import type {
   Dependence,
-  GameCreationForm,
-  Gamemode,
+  // GameCreationForm,
+  // Gamemode,
   GameType,
   Region,
-  Question,
 } from '../types/GameplayTypes';
-import { dependenceList, allRegions, gameTypesList } from './constants';
-import instance from './api';
+import { allRegions, dependenceList, gameTypesList } from './constants';
+
+export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export function parseError(error: any) {
   if (typeof error === 'string') return error;
@@ -21,33 +20,33 @@ export function parseError(error: any) {
   return 'Unknown error';
 }
 
-export const createGame = async (
-  gameSettings: GameCreationForm,
-  gamemode: Gamemode
-): Promise<{ error: true; response: string } | { error: false; response: Question[] }> => {
-  try {
-    // Make the API call
-    const url = `${process.env.NEXT_PUBLIC_STRAPI_URL}/game/create/${gamemode.toLowerCase()}`;
-    const {
-      data: { questions },
-    } = await instance.post<{ questions: Question[] }>(url, gameSettings);
+// : Promise<{ error: true; response: string } | { error: false; response: Question[] }>
+export const createGame = () =>
+  // gameSettings: GameCreationForm,
+  // gamemode: Gamemode
+  ({ error: false, response: 'okay' });
+// try {
+//   // Make the API call
+//   const url = `${process.env}/game/create/${gamemode.toLowerCase()}`;
+//   const {
+//     data: { questions },
+//   } = await instance.post<{ questions: Question[] }>(url, gameSettings);
 
-    return { error: false, response: questions };
-  } catch (error: any) {
-    let errorMessage: string = '';
-    if (error && error.error && error.error.message) {
-      errorMessage = error.error.message || '???';
-      console.error('!Error!', errorMessage);
-    } else if (axios.isAxiosError(error)) {
-      errorMessage = error.message;
-      console.error('Error:', errorMessage);
-    } else {
-      console.error('Unexpected error:', error);
-      if (typeof error === 'string') errorMessage = error;
-    }
-    return { error: true, response: errorMessage || 'Unexpected error' };
-  }
-};
+//   return { error: false, response: questions };
+// } catch (error: any) {
+//   let errorMessage: string = '';
+//   if (error && error.error && error.error.message) {
+//     errorMessage = error.error.message || '???';
+//     console.error('!Error!', errorMessage);
+//   } else if (axios.isAxiosError(error)) {
+//     errorMessage = error.message;
+//     console.error('Error:', errorMessage);
+//   } else {
+//     console.error('Unexpected error:', error);
+//     if (typeof error === 'string') errorMessage = error;
+//   }
+//   return { error: true, response: errorMessage || 'Unexpected error' };
+// }
 
 const compareArrays = (arr1: number[], arr2: number[]): [number | null, number, number] => {
   let correspondingCount = 0;
@@ -69,7 +68,7 @@ const statsToPoints = (
   averageRT: number,
   longestRT: number,
   correct: number,
-  incorrect: number
+  incorrect: number,
 ): number => {
   let score = 0;
   score += correct;
@@ -89,7 +88,7 @@ export const gameDataToStats = (
     index: number;
     time: number;
   }[],
-  correctAnswers: number[]
+  correctAnswers: number[],
 ): {
   title: string;
   stats: string;
@@ -103,7 +102,7 @@ export const gameDataToStats = (
   const highestResponseTime = fixNumber(Math.max(...responseTimes) / 1000);
   const shortestResponseTime = fixNumber(Math.min(...responseTimes) / 1000);
   const averageResponseTime = fixNumber(
-    responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000
+    responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length / 1000,
   );
 
   // correct answers
@@ -119,7 +118,7 @@ export const gameDataToStats = (
       averageResponseTime,
       highestResponseTime,
       correctAnswersCount,
-      incorrectAnswersCount
+      incorrectAnswersCount,
     );
   }
 
@@ -173,10 +172,21 @@ export const randomElement = <T>(arr: T[]): [T, number] => {
 };
 
 export const showError = (error: string) =>
-  showNotification({ title: 'Error', message: error, autoClose: 3000, icon: X({}), color: 'red' });
+  showNotification({
+    title: 'Error',
+    message: error,
+    autoClose: 3000,
+    icon: X({}),
+    color: 'red',
+  });
 
 export const showSuccess = (message: string) =>
-  showNotification({ title: 'Success', message, autoClose: 3000, icon: Check({}) });
+  showNotification({
+    title: 'Success',
+    message,
+    autoClose: 3000,
+    icon: Check({}),
+  });
 
 export const showInfo = (message: string) =>
   showNotification({
@@ -207,33 +217,36 @@ export function shuffle<T>(array: T[]): T[] {
   return tempArray;
 }
 
-export const capitalize = (text: string) => text
-  .split(' ')
-  .map((word: string) =>
-    word.toUpperCase().charAt(0) + word.slice(1).toLowerCase()
-  )
-  .join(' ');
+export const capitalize = (text: string) =>
+  text
+    .split(' ')
+    .map((word: string) => word.toUpperCase().charAt(0) + word.slice(1).toLowerCase())
+    .join(' ');
 
 export const addClasses = (...classes: string[]) =>
   ''.concat(
     ...classes
       .filter((cl) => cl)
       .map((cl) => [...cl, ' '])
-      .flat(1)
+      .flat(1),
   );
 
 export const validateGameCreationForm = {
   gameTypes: (gameTypes: GameType[]) => {
-    const condition =
-      !!(gameTypes &&
-        gameTypes.length > 0 &&
-        gameTypes.every((gameType: GameType) => gameTypesList.includes(gameType)));
+    const condition = !!(
+      gameTypes &&
+      gameTypes.length > 0 &&
+      gameTypes.every((gameType: GameType) => gameTypesList.includes(gameType))
+    );
     if (condition) return null;
     return 'Invalid Game Type';
   },
   regions: (regions: Region[]) => {
-    const condition =
-      !!(regions && regions.length > 0 && regions.every((region) => allRegions.includes(region)));
+    const condition = !!(
+      regions &&
+      regions.length > 0 &&
+      regions.every((region) => allRegions.includes(region))
+    );
     if (condition) return null;
     return 'Invalid Region';
   },
@@ -241,28 +254,5 @@ export const validateGameCreationForm = {
     const condition = !!(dependenceList && dependenceList.includes(dependence));
     if (condition) return null;
     return 'Invalid Dependence options';
-  },
-};
-
-export const validators = {
-  username: (username: string) => {
-    if (username.length < 6) return 'The username must be at least 6 characters long';
-    return null;
-  },
-  identifier: (identifier: string) => {
-    if (identifier.length < 6) return 'Invalid username/email provided';
-    return null;
-  },
-  email: (email: string) => {
-    const regex =
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (!regex.test(email)) return 'Invalid email';
-    return null;
-  },
-  password: (password: string) => {
-    const regex =
-      /^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
-    if (!regex.test(password)) { return 'Password must have: at least 8 characters, a special character, an uppercase letter, a lowercase letter and a number'; }
-    return null;
   },
 };

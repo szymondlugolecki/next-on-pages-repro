@@ -7,6 +7,10 @@ const withBundleAnalyzer = bundleFunc({
   enabled: process.env.ANALYZE === 'true',
 });
 
+/**
+ * @type {import('next').NextConfig}
+ **/
+
 export default withBundleAnalyzer({
   async headers() {
     return [
@@ -15,8 +19,12 @@ export default withBundleAnalyzer({
         headers: nextSafe({
           isDev,
           contentSecurityPolicy: {
-            'prefetch-src': false,
-            'connect-src': "'self' http://localhost:1337",
+            'prefetch-src': false, // securetoken.googleapis.com identitytoolkit.googleapis.com
+            'connect-src': "'self' localhost:3000 localhost:8787 geogenius-1c608.firebaseapp.com identitytoolkit.googleapis.com googleapis.com securetoken.googleapis.com apis.google.com",
+            'script-src': "'self' apis.google.com geogenius-1c608.firebaseapp.com",
+            'frame-src': "'self' geogenius-1c608.firebaseapp.com",
+            'img-src': "'self' lh3.googleusercontent.com",
+            'default-src': "'self' localhost:3000 localhost:8787"
           },
         }),
       },
@@ -39,4 +47,7 @@ export default withBundleAnalyzer({
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    runtime: "experimental-edge"
+  }
 });

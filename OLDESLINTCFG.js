@@ -1,10 +1,14 @@
 module.exports = {
+  env: {
+    browser: true,
+    es2021: true,
+  },
   extends: [
-    'airbnb',
     'mantine',
     'plugin:@next/next/recommended',
     'plugin:jest/recommended',
     'plugin:storybook/recommended',
+    'eslint:recommended',
   ],
   plugins: ['testing-library', 'jest'],
   overrides: [
@@ -18,6 +22,7 @@ module.exports = {
   },
   rules: {
     'react/react-in-jsx-scope': 'off',
-    'linebreak-style': ["error", "windows"]
+    'linebreak-style': 0,
+    'no-console': 'off',
   },
 };

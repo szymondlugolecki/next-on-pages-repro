@@ -211,17 +211,53 @@ export const gameModeCardData: GameTypeCardData[] = [
 
 export const statsLearnData: StatsProps = {
   data: [
-    { label: 'Correct Answers', stats: '15230', progress: 89, color: 'green', icon: 'up' },
-    { label: 'Games Won', stats: '1024', progress: 78, color: 'blue', icon: 'up' },
-    { label: 'Play Time', stats: '15 hours', progress: 24, color: 'red', icon: 'down' },
+    {
+      label: 'Correct Answers',
+      stats: '15230',
+      progress: 89,
+      color: 'green',
+      icon: 'up',
+    },
+    {
+      label: 'Games Won',
+      stats: '1024',
+      progress: 78,
+      color: 'blue',
+      icon: 'up',
+    },
+    {
+      label: 'Play Time',
+      stats: '15 hours',
+      progress: 24,
+      color: 'red',
+      icon: 'down',
+    },
   ],
 };
 
 export const statsChallengeData: StatsProps = {
   data: [
-    { label: 'Correct Answers', stats: '11203', progress: 92, color: 'green', icon: 'up' },
-    { label: 'Games Won', stats: '685', progress: 96, color: 'blue', icon: 'up' },
-    { label: 'Current Win-Streak', stats: '2', progress: 40, color: 'red', icon: 'down' },
+    {
+      label: 'Correct Answers',
+      stats: '11203',
+      progress: 92,
+      color: 'green',
+      icon: 'up',
+    },
+    {
+      label: 'Games Won',
+      stats: '685',
+      progress: 96,
+      color: 'blue',
+      icon: 'up',
+    },
+    {
+      label: 'Current Win-Streak',
+      stats: '2',
+      progress: 40,
+      color: 'red',
+      icon: 'down',
+    },
   ],
 };
 
@@ -251,52 +287,52 @@ export const map: {
   center?: [number, number];
   scale: number;
 }[] = [
-    {
-      name: 'europe',
-      rotate: [0, 0, 0],
-      center: [14, 52],
-      scale: 910,
-    },
-    {
-      name: 'North America',
-      rotate: [0, 0, 0],
-      center: [-80, 35],
-      scale: 400,
-    },
-    {
-      name: 'South America',
-      rotate: [0, 0, 0],
-      center: [-60, -20],
-      scale: 400,
-    },
-    {
-      name: 'asia',
-      rotate: [0, 0, 0],
-      center: [80, 28],
-      scale: 400,
-    },
-    {
-      name: 'oceania',
-      rotate: [-150, 20, 3],
-      center: [0, 0],
-      scale: 600,
-    },
-    {
-      name: 'africa',
-      rotate: [0, 0, 0],
-      center: [15, 1.5],
-      scale: 400,
-    },
-    {
-      name: 'Caribbean',
-      rotate: [0, 0, 0],
-      center: [-70, 15],
-      scale: 500,
-    },
-    {
-      name: 'Central America',
-      rotate: [0, 0, 0],
-      center: [-70, 15],
-      scale: 500,
-    },
-  ];
+  {
+    name: 'europe',
+    rotate: [0, 0, 0],
+    center: [14, 52],
+    scale: 910,
+  },
+  {
+    name: 'North America',
+    rotate: [0, 0, 0],
+    center: [-80, 35],
+    scale: 400,
+  },
+  {
+    name: 'South America',
+    rotate: [0, 0, 0],
+    center: [-60, -20],
+    scale: 400,
+  },
+  {
+    name: 'asia',
+    rotate: [0, 0, 0],
+    center: [80, 28],
+    scale: 400,
+  },
+  {
+    name: 'oceania',
+    rotate: [-150, 20, 3],
+    center: [0, 0],
+    scale: 600,
+  },
+  {
+    name: 'africa',
+    rotate: [0, 0, 0],
+    center: [15, 1.5],
+    scale: 400,
+  },
+  {
+    name: 'Caribbean',
+    rotate: [0, 0, 0],
+    center: [-70, 15],
+    scale: 500,
+  },
+  {
+    name: 'Central America',
+    rotate: [0, 0, 0],
+    center: [-70, 15],
+    scale: 500,
+  },
+];
