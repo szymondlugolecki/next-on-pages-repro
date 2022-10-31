@@ -1,144 +1,72 @@
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import {
-  Header,
-  Container,
-  Burger,
-  Paper,
-  Transition,
-  Menu,
-  Group,
-  Avatar,
-  UnstyledButton,
-  Button,
-} from '@mantine/core';
+import { Burger, Container, Group, Header, Paper, Transition } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
-import { Globe, User, Settings, ChartLine, Logout } from 'tabler-icons-react';
+import Link from 'next/link';
+import { useState } from 'react';
 
-import { signOut, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { Globe } from 'tabler-icons-react';
+import { UserMenu } from '../User/UserMenu';
+
+import type { HeaderLink } from '../../types/GameplayTypes';
 
 import styles from './Header.styles';
 
 const HEADER_HEIGHT = 60;
 
-export function HeaderLayout({ links }: { links: { link: string; label: string }[] }) {
-  const { push } = useRouter();
-  const { data: session } = useSession();
+export function HeaderLayout({ links }: { links: HeaderLink[] }) {
+  const { pathname } = useRouter();
+  const initialURL = links.find((link) => link.url === pathname)?.url || links[0].url;
+  const { data: session, status } = useSession();
   const [opened, toggleOpened] = useToggle([false, true]);
-  const [active, setActive] = useState(links[0].link);
+  const [active, setActive] = useState(initialURL);
   const { classes, cx } = styles();
 
-  const items = links.map((link, index) => (
-    <Link href={link.link} key={link.label}>
-      <a
-        role="link"
-        tabIndex={index}
-        className={cx(classes.link, { [classes.linkActive]: active === link.link })}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            setActive(link.link);
+  const items = links.map(({ label, url, unauthedOnly }, index) => {
+    if (unauthedOnly && status === 'authenticated') return null;
+    return (
+      <Link href={url} key={label}>
+        <a
+          role='link'
+          tabIndex={index}
+          className={cx(classes.link, { [classes.linkActive]: active === url })}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              setActive(url);
+              toggleOpened();
+            }
+          }}
+          onClick={() => {
+            // event.preventDefault();
+            setActive(url);
             toggleOpened();
-          }
-        }}
-        onClick={() => {
-          // event.preventDefault();
-          setActive(link.link);
-          toggleOpened();
-        }}
-      >
-        {link.label}
-      </a>
-    </Link>
-  ));
-
-  // const getMe = async () => {
-  //   try {
-  //     const { data } = await instance.get<UserResponse>('/users/me');
-  //     showInfo(`Your name is ${data.username}`);
-  //     console.log('data', data);
-  //   } catch (error: any) {
-  //     console.error(error.message);
-  //   }
-  // };
+          }}
+        >
+          {label}
+        </a>
+      </Link>
+    );
+  });
 
   const { user } = session || {};
-
-  function UserMenu() {
-    return (
-      user && (
-        <Menu shadow="md" width={200}>
-          <Menu.Target>
-            <UnstyledButton>
-              <Avatar src={user.image} alt="Your avatar" size={42} radius="xl" color="blue" />
-            </UnstyledButton>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Label>{user.name}</Menu.Label>
-            <Menu.Item
-              component="button"
-              icon={<User size={14} />}
-              onClick={() => push(`/profile/${user.name}`)}
-            >
-              Profile
-            </Menu.Item>
-            <Menu.Item
-              component="button"
-              icon={<ChartLine size={14} />}
-              onClick={() => push(`/profile/${user.name}/stats`)}
-            >
-              Statistics
-            </Menu.Item>
-            <Menu.Item
-              component="button"
-              icon={<Settings size={14} />}
-              onClick={() => push('/settings')}
-            >
-              Settings
-            </Menu.Item>
-            <Menu.Divider />
-            <Menu.Item
-              color="red"
-              icon={<Logout size={14} />}
-              component="button"
-              onClick={() => signOut({ redirect: true, callbackUrl: '/home' })}
-            >
-              Logout
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-      )
-    );
-  }
-
-  const getSomething = () => {
-    fetch('http://localhost:8787/api/auth/me').then(async (res) => {
-      const response = await res.json();
-      console.log(response);
-    });
-  };
 
   return (
     <Header height={HEADER_HEIGHT} className={classes.root}>
       <Container className={classes.header}>
         <Globe />
         <Group spacing={5} className={classes.links}>
-          <Button onClick={getSomething} size="md">
-            Get me
-          </Button>
           {items}
-          {user && UserMenu()}
-          {!user && 'Not logged in'}
+          {session && <UserMenu user={user} />}
         </Group>
 
         <Burger
           opened={opened}
           onClick={() => toggleOpened()}
           className={classes.burger}
-          size="sm"
+          size='sm'
         />
 
-        <Transition transition="pop-top-right" duration={200} mounted={opened}>
+        <Transition transition='pop-top-right' duration={200} mounted={opened}>
           {(style) => (
             <Paper className={classes.dropdown} withBorder style={style}>
               {items}

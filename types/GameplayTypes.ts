@@ -81,6 +81,12 @@ export interface PostData {
 
 //
 
+export interface HeaderLink {
+  url: string;
+  label: string;
+  unauthedOnly?: boolean | undefined;
+}
+
 // Store
 export type PaymentType = 'onetime' | 'subscription:monthly' | 'subscription:yearly';
 

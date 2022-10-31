@@ -6,4 +6,13 @@ const instance = axios.create({
   //   headers: { 'X-Custom-Header': 'foobar' },
 });
 
+const handleAxiosError = (error: any) => {
+  if (axios.isAxiosError(error)) {
+    console.error(error.message);
+  } else {
+    console.error('Non-axios error occured');
+  }
+};
+
 export default instance;
+export { handleAxiosError };

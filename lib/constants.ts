@@ -1,15 +1,15 @@
-import { Flag2, Map, CurrentLocation, Crown, CrownOff, Omega, Icon } from 'tabler-icons-react';
+import { Crown, CrownOff, CurrentLocation, Flag2, Icon, Map, Omega } from 'tabler-icons-react';
 
 import {
-  StatsProps,
-  GameTypeCardData,
-  Region,
-  GameType,
   Dependence,
-  Product,
-  Subregion,
   Gamemode,
   GameModeSetting,
+  GameType,
+  GameTypeCardData,
+  Product,
+  Region,
+  StatsProps,
+  Subregion,
 } from '../types/GameplayTypes';
 
 export const geopolisFeatures: { title: string; description: string }[] = [
@@ -171,7 +171,7 @@ export const gamemodesSettings: GameModeSetting[] = [
   },
 ];
 export const gamemodes: Gamemode[] = gamemodesSettings.map(
-  (gamemodeSettings) => gamemodeSettings.name
+  (gamemodeSettings) => gamemodeSettings.name,
 );
 
 export const geoURL = 'http://localhost:3000/worldmap.geo.json';
@@ -262,9 +262,10 @@ export const statsChallengeData: StatsProps = {
 };
 
 export const headerLinks = [
-  { link: '/home', label: 'Home' },
-  { link: '/play', label: 'Play' },
-  { link: '/store', label: 'Store' },
+  { url: '/home', label: 'Home' },
+  { url: '/play', label: 'Play' },
+  { url: '/store', label: 'Store' },
+  { url: '/auth/login', label: 'Login', unauthedOnly: true },
 ];
 
 export const footerLinks = [

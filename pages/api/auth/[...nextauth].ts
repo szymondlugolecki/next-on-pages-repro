@@ -3,11 +3,30 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import GoogleProvider from 'next-auth/providers/google';
+import { emailToNickname, handleFaunaError } from '../../../lib/edgeFunctions';
 
-import faunaClient from '../../../lib/faunaClient';
+import faunaClient, { q } from '../../../lib/faunaClient';
 
-// const getUser = (email: string) =>
-//   faunaClient.query(q.Get(q.Match(q.Index('user_by_email'), email)));
+const setUserGenericNickname = (email: string, nickname: string) =>
+  faunaClient.query(
+    q.Let(
+      {
+        hasNickname: q.ContainsPath(
+          ['data', 'nickname'],
+          q.Get(q.Match(q.Index('user_by_email'), email)),
+        ),
+      },
+      q.If(
+        q.Not(q.Var('hasNickname')),
+        q.Update(q.Select(['ref'], q.Get(q.Match(q.Index('user_by_email'), email))), {
+          data: {
+            nickname,
+          },
+        }),
+        'Generic Nickname already exists',
+      ),
+    ),
+  );
 
 const aDay = 60 * 60 * 24;
 
@@ -32,8 +51,37 @@ const auth = async (req: NextApiRequest, res: NextApiResponse) => {
       maxAge: aDay * 14, // 14 days
       strategy: 'jwt',
     },
+    callbacks: {
+      async jwt({ token, user, isNewUser }) {
+        try {
+          console.log('jwt()', user?.email, isNewUser);
+          if (user?.email && isNewUser === true) {
+            const genericNickname = emailToNickname(user.email);
+            await setUserGenericNickname(user.email, genericNickname);
+            token.nickname = genericNickname;
+            console.log('bro just joined so I gave him a nickname:', token.nickname);
+          }
+        } catch (error) {
+          handleFaunaError(error);
+        }
+
+        if (user?.nickname) token.nickname = user?.nickname;
+
+        return token;
+      },
+      async session({ session, token }) {
+        if (token && token.nickname) {
+          session.user.nickname = token.nickname;
+        }
+
+        return session;
+      },
+    },
     pages: {
       signIn: '/auth/login',
+      verifyRequest: '/auth/verify',
+      signOut: '/auth/signout',
+      newUser: '/auth/welcome',
     },
     providers: [
       GoogleProvider({
