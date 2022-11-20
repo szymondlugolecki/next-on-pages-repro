@@ -1,15 +1,10 @@
 // Hooks
-import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm, UseFormReturnType } from '@mantine/form';
-import { useRouter } from 'next/router';
 
 // Components
-import { Group, UnstyledButton, Text } from '@mantine/core';
-import { InfoCircle } from 'tabler-icons-react';
+import { Group, Text, UnstyledButton } from '@mantine/core';
 
 // Types
-import { Dependence, DependenceChoiceTypes } from '../../types/GameplayTypes';
+import { DependenceChoiceTypes } from '../../types/GameplayTypes';
 
 // Styles
 import styles from './DependenceCards.styles';
@@ -35,11 +30,11 @@ export function DependenceCards({ form, settings }: DependenceChoiceTypes) {
         onClick={() => handleSelection()}
         className={addClasses(
           classes.item,
-          selected ? classes.dependenceCardSelected : classes.dependenceCard
+          selected ? classes.dependenceCardSelected : classes.dependenceCard,
         )}
       >
         <Icon />
-        <Text weight={500} size="xl">
+        <Text weight={500} size='xl'>
           {label}
         </Text>
       </UnstyledButton>

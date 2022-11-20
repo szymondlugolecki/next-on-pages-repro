@@ -8,9 +8,12 @@ const instance = axios.create({
 
 const handleAxiosError = (error: any) => {
   if (axios.isAxiosError(error)) {
-    console.error(error.message);
+    const msg = error.response?.data.message || error.message;
+    console.error(msg);
+    return msg;
   } else {
     console.error('Non-axios error occured');
+    return 'Unexpected error occured';
   }
 };
 

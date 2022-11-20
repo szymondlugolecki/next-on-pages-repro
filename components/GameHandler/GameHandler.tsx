@@ -1,6 +1,6 @@
 // Hooks
-import { useState } from 'react';
 import { useForm } from '@mantine/form';
+import { useState } from 'react';
 
 // Components
 import { Text } from '@mantine/core';
@@ -8,7 +8,7 @@ import { GameCreator } from '../GameCreator/GameCreator';
 import { Quiz } from '../Quiz/Quiz';
 
 // Types
-import type { Question, GameCreationForm, Gamemode } from '../../types/GameplayTypes';
+import type { GameCreationForm, Gamemode, Question } from '../../types/GameplayTypes';
 
 // Styles
 
@@ -21,7 +21,8 @@ export function GameHandler({ gamemode }: { gamemode: Gamemode }) {
   const [questions, setQuestions] = useState<Question[]>();
 
   const [answersList, setAnswersList] = useState<{ index: number; time: number }[]>([]);
-  const addAnswer = (answer: { index: number; time: number }) => setAnswersList((value) => [...value, answer]);
+  const addAnswer = (answer: { index: number; time: number }) =>
+    setAnswersList((value) => [...value, answer]);
 
   const settings = gamemodesSettings.find((gm) => gm.name === gamemode);
   if (!settings) return <Text>Unknown error occured</Text>;

@@ -1,40 +1,16 @@
 // Hooks
-import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm, UseFormReturnType } from '@mantine/form';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 // Components
-import {
-  Text,
-  Group,
-  Button,
-  Divider,
-  Switch,
-  Chip,
-  Stepper,
-  Card,
-  SegmentedControl,
-  Container,
-  SimpleGrid,
-  Modal,
-} from '@mantine/core';
-import Image from 'next/image';
-import { Reset } from '@mantine/form/lib/types';
-import { Hint } from '../Hint/Hint';
+import { Button, Container, Divider, Group, Modal, Text } from '@mantine/core';
 import { Answers } from '../Answers/Answers';
+import { Hint } from '../Hint/Hint';
 
 // Types
-import type {
-  Region,
-  GameType,
-  Dependence,
-  Gamemode,
-  GameCreationForm,
-  Question,
-} from '../../types/GameplayTypes';
-import { AfterGameScreen } from '../AfterGameScreen/AfterGameScreen';
 import { gameDataToStats } from '../../lib/functions';
+import type { Gamemode, Question } from '../../types/GameplayTypes';
+import { AfterGameScreen } from '../AfterGameScreen/AfterGameScreen';
 
 // Styles
 import styles from './Quiz.styles';
@@ -109,9 +85,9 @@ export function Quiz({
 
   const resetButton = (
     <>
-      <Divider my="sm" variant="dashed" />
-      <Group position="right">
-        <Button variant="light" color="red" onClick={() => setOpened(true)}>
+      <Divider my='sm' variant='dashed' />
+      <Group position='right'>
+        <Button variant='light' color='red' onClick={() => setOpened(true)}>
           Stop
         </Button>
       </Group>
@@ -124,12 +100,12 @@ export function Quiz({
       <Modal
         opened={opened}
         onClose={() => setOpened(false)}
-        title="Are you sure you want to quit?"
+        title='Are you sure you want to quit?'
         centered
       >
-        <Group align="center" position="right">
+        <Group align='center' position='right'>
           <Button onClick={() => gameReset()}>Yes!</Button>
-          <Button onClick={() => setOpened(false)} color="red">
+          <Button onClick={() => setOpened(false)} color='red'>
             No
           </Button>
         </Group>
@@ -143,10 +119,10 @@ export function Quiz({
       />
       {/* divider - gameType, current question, number of questions */}
       <Divider
-        my="sm"
-        variant="dashed"
+        my='sm'
+        variant='dashed'
         label={`${gameTypeX ? gameTypeX.label : '?'} | Question: ${question}/${questions.length}`}
-        labelPosition="center"
+        labelPosition='center'
       />
       {/* grid of answers */}
       <Answers

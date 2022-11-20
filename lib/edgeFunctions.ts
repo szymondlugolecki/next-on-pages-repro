@@ -1,4 +1,7 @@
-export const authValidators = {
+import { UserQuery } from '../types/API';
+import faunaClient, { q } from './prismaClient';
+
+export const formValidators = {
   email: (email: string) => {
     if (!email || email.length < 4) return 'Invalid email';
     return null;
@@ -53,6 +56,40 @@ export const handleFaunaError = (error: any) => {
       status = 500;
   }
 
-  console.error(code, description);
+  console.error(code, description, status);
   return { code, description, status };
+};
+
+export const sendResponse = (
+  message: { [key: string]: string | boolean | object },
+  status: number,
+) =>
+  new Response(JSON.stringify(message), {
+    status,
+    headers: {
+      'content-type': 'application/json',
+    },
+  });
+
+export const getUserByName = (nickname: string) =>
+  faunaClient.query(q.Get(q.Match(q.Index('user_by_nickname'), nickname))) as Promise<UserQuery>;
+
+export const getUserByEmail = (email: string) =>
+  faunaClient.query(q.Get(q.Match(q.Index('user_by_email'), email))) as Promise<UserQuery>;
+
+export const timestampFormat = (ts: number) =>
+  new Intl.DateTimeFormat([], { dateStyle: 'long' }).format(new Date(ts)) || '-';
+
+export const isPositiveInteger = (str: any) => {
+  if (typeof str !== 'string') {
+    return false;
+  }
+
+  const num = Number(str);
+
+  if (Number.isInteger(num) || num === 0) {
+    return true;
+  }
+
+  return false;
 };

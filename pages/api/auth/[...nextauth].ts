@@ -1,37 +1,22 @@
-import { FaunaAdapter } from '@next-auth/fauna-adapter';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import GoogleProvider from 'next-auth/providers/google';
-import { emailToNickname, handleFaunaError } from '../../../lib/edgeFunctions';
+import { emailToNickname, getUserByEmail, handleFaunaError } from '../../../lib/edgeFunctions';
 
-import faunaClient, { q } from '../../../lib/faunaClient';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import prisma from '../../../lib/prismaClient';
 
-const setUserGenericNickname = (email: string, nickname: string) =>
-  faunaClient.query(
-    q.Let(
-      {
-        hasNickname: q.ContainsPath(
-          ['data', 'nickname'],
-          q.Get(q.Match(q.Index('user_by_email'), email)),
-        ),
-      },
-      q.If(
-        q.Not(q.Var('hasNickname')),
-        q.Update(q.Select(['ref'], q.Get(q.Match(q.Index('user_by_email'), email))), {
-          data: {
-            nickname,
-          },
-        }),
-        'Generic Nickname already exists',
-      ),
-    ),
-  );
+const initialValues = (nickname: string) => ({
+  nickname,
+  vip: false,
+  banned: false,
+  ducats: 0,
+  nChanges: 1,
+  picture: null,
+});
 
 const aDay = 60 * 60 * 24;
-
-// 25, 587 	(for unencrypted/TLS connections)
-// 465 	(for SSL connections)
 
 const auth = async (req: NextApiRequest, res: NextApiResponse) => {
   const emailOptions = {
@@ -46,32 +31,42 @@ const auth = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   };
   return NextAuth(req, res, {
-    adapter: FaunaAdapter(faunaClient),
+    adapter: PrismaAdapter(prisma),
     session: {
       maxAge: aDay * 14, // 14 days
       strategy: 'jwt',
     },
     callbacks: {
       async jwt({ token, user, isNewUser }) {
-        try {
-          console.log('jwt()', user?.email, isNewUser);
-          if (user?.email && isNewUser === true) {
+        if (user?.email && isNewUser === true) {
+          try {
             const genericNickname = emailToNickname(user.email);
-            await setUserGenericNickname(user.email, genericNickname);
-            token.nickname = genericNickname;
-            console.log('bro just joined so I gave him a nickname:', token.nickname);
+
+            await setInitialValues(user.email, genericNickname);
+            token.user = initialValues(genericNickname);
+          } catch (error) {
+            handleFaunaError(error);
           }
-        } catch (error) {
-          handleFaunaError(error);
         }
 
-        if (user?.nickname) token.nickname = user?.nickname;
+        if (req.url === '/api/auth/session?update' && token.email) {
+          try {
+            // @ts-ignore
+            const { data } = await getUserByEmail(token.email);
+            const { vip, ducats, nChanges, nickname, picture } = data;
+
+            token.user = { vip, ducats, nChanges, nickname, picture };
+            console.log('*********** UPDATED USER ***********', token.user);
+          } catch (error) {
+            handleFaunaError(error);
+          }
+        }
 
         return token;
       },
       async session({ session, token }) {
-        if (token && token.nickname) {
-          session.user.nickname = token.nickname;
+        if (token && token.user) {
+          session.user = { ...token.user, email: token.email };
         }
 
         return session;

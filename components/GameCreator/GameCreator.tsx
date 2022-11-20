@@ -1,16 +1,16 @@
 // Hooks
-import { useToggle } from '@mantine/hooks';
 import { UseFormReturnType } from '@mantine/form';
+import { useToggle } from '@mantine/hooks';
 
 // Components
-import { Text, Group, Button, Stack, Alert, Container } from '@mantine/core';
+import { Alert, Button, Container, Group, Stack, Text } from '@mantine/core';
 import { AlertCircle, InfoCircle } from 'tabler-icons-react';
+import { DependenceCards } from '../DependenceCards/DependenceCards';
 import { GameTypeCard } from '../GameTypeCard/GameTypeCard';
 import { RegionCards } from '../RegionCards/RegionCards';
-import { DependenceCards } from '../DependenceCards/DependenceCards';
 
 // Types
-import type { Gamemode, GameCreationForm, Question } from '../../types/GameplayTypes';
+import type { GameCreationForm, Gamemode, Question } from '../../types/GameplayTypes';
 
 // Styles
 
@@ -58,14 +58,14 @@ export function GameCreator({
 
   return (
     <form onSubmit={form.onSubmit(createGameHandler)} onReset={resetGame}>
-      <Stack align="center" style={{ position: 'relative' }}>
+      <Stack align='center' style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', right: 0, top: 0 }}>
           <InfoCircle />
           {/* `👉 ${settings.rules.join('\n👉 ')}` */}
         </div>
 
         {/* Capital Cities/Flags/Map */}
-        <Group spacing="xl">{gameTypeCards}</Group>
+        <Group spacing='xl'>{gameTypeCards}</Group>
 
         {/* Regions */}
         <RegionCards form={form} settings={gmSettings.regions} />
@@ -76,13 +76,13 @@ export function GameCreator({
         {/* Start & Ready Buttons */}
         <Group>
           {gamemode.startsWith('challenge') && (
-            <Button color="blue" onClick={() => useReady()}>
+            <Button color='blue' onClick={() => useReady()}>
               Ready
             </Button>
           )}
           <Button
-            variant="filled"
-            type="submit"
+            variant='filled'
+            type='submit'
             {...{ disabled: !!(gamemode.startsWith('challenge') && ready === false) }}
           >
             START
@@ -90,12 +90,12 @@ export function GameCreator({
         </Group>
 
         {form.values.gameTypes.includes('map') && (
-          <Container size="md">
+          <Container size='md'>
             <Alert
               icon={<AlertCircle size={16} />}
-              color="blue"
-              title="Please note!"
-              variant="outline"
+              color='blue'
+              title='Please note!'
+              variant='outline'
             >
               {`Some countries (very small or independent) are not included in the World Map.\n
               This might change in the future. ✌️`}

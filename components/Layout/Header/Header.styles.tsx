@@ -3,9 +3,11 @@ import { createStyles } from '@mantine/core';
 const HEADER_HEIGHT = 60;
 
 export default createStyles((theme) => ({
-  root: {
+  header: {
     position: 'relative',
     zIndex: 1,
+    // borderBottom: 0,
+    // background: theme.colors.indigo[9],
   },
 
   dropdown: {
@@ -24,7 +26,7 @@ export default createStyles((theme) => ({
     },
   },
 
-  header: {
+  headerContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',

@@ -2,7 +2,7 @@ import { Button, Container, Group, Paper, Title } from '@mantine/core';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Loading } from '../../components/Loading/Loading';
+import Loading from '../../components/Layout/Loading';
 
 export default function Verify() {
   const { push } = useRouter();

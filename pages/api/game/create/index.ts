@@ -1,23 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import {
-  PostData,
-  GameType,
-  ResponseData,
-  Question,
-  Gamemode,
-  Region,
-  Dependence,
+  Dependence, Gamemode,
+  Region, ResponseData
 } from '../../../../types/GameplayTypes';
 
-import QuestionsGenerator from '../../../../lib/QuestionsGenerator';
 import {
-  availableGamemodes,
-  gamemodes,
-  allRegions,
-  dependenceList,
-  shareAnswersGamemodes,
+  allRegions, availableGamemodes, dependenceList, gamemodes
 } from '../../../../lib/constants';
+import QuestionsGenerator from '../../../../lib/QuestionsGenerator';
 
 /**
  * Returns null if no errors, returns string if error
@@ -115,5 +106,4 @@ return throwError(
 TODO:
  * LEARN GAMEMODE:
     > choice: mixed questions | 1 type (all answers [user selects flags: quizes him for all world flags]) |
-
 */

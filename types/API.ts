@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
-
 export interface APIError {
   status: number;
   name: string;
@@ -9,27 +7,35 @@ export interface APIError {
 
 // User
 
-export type UserStatus = 'authenticated' | 'unauthenticated' | 'loading';
-
-export interface UserAct {
-  user: UserResponse | null;
-  setUser: Dispatch<SetStateAction<UserResponse | null>>;
-  status: 'authenticated' | 'unauthenticated' | 'loading';
-  doLogout: () => Promise<void>;
-  checkLogin: () => Promise<
-    | {
-        logged: boolean;
-        user: UserResponse;
-      }
-    | {
-        logged: boolean;
-        user: null;
-      }
-  >;
-  doGoogleCallback(values: any): Promise<string | any[]>;
+export interface UserQuery {
+  ref: object;
+  ts: number;
+  data: {
+    email: string;
+    emailVerified: object;
+    nickname: string;
+    vip: boolean;
+    banned: boolean;
+    ducats: number;
+    nChanges: number;
+    picture: string | null;
+  };
 }
 
-export interface UserResponse {
+export interface PublicUser {
+  joined: number;
+  picture?: string;
+  nickname: string;
+  vip: boolean;
+  banned: boolean;
+}
+
+export interface PrivateUser extends PublicUser {
+  email: string;
+}
+
+export type UserStatus = 'authenticated' | 'unauthenticated' | 'loading';
+export interface UserDB {
   id: number;
   username: string;
   email: string;
@@ -42,34 +48,4 @@ export interface UserResponse {
   ducats: number;
   avatar: string | null;
   vip: boolean;
-}
-
-export interface LoginSuccessful {
-  status: 'Authenticated';
-  user: UserResponse;
-}
-
-export interface LogoutSuccessful {
-  message: 'ok';
-  success: true;
-}
-
-export interface AuthUnsuccessful {
-  data: null;
-  error: APIError;
-}
-
-export interface LoginCredentials {
-  identifier: string;
-  password: string;
-}
-
-export interface RegisterCredentials {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export interface UserType {
-  nickname: string;
 }

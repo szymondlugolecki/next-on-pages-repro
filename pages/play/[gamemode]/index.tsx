@@ -1,14 +1,10 @@
 // Hooks
-import { useContext, useEffect, useState } from 'react';
-import { useToggle } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import { useRouter } from 'next/router';
 
 // Components
 import { Container, Paper } from '@mantine/core';
-import { GetServerSideProps } from 'next';
 import { ChallengeSolo } from '../../../components/ChallengeSolo/ChallengeSolo';
-import { Loading } from '../../../components/Loading/Loading';
 
 // Types
 import { Region } from '../../../types/GameplayTypes';
@@ -18,10 +14,8 @@ import styles from './PlayGameMode.styles';
 
 // Client-Side Data & Functions
 import { allRegions, availableGamemodes } from '../../../lib/constants';
-import { UserContext } from '../../../lib/userContext';
 
 export default function PlayGamemode() {
-  const { checkLogin } = useContext(UserContext) || {};
   const { push, query } = useRouter();
   const { classes } = styles();
 
@@ -48,8 +42,8 @@ export default function PlayGamemode() {
 
   return (
     <Container className={classes.container}>
-      <Paper radius="md" p="xl" withBorder>
-        {gamemode === 'challenge' && <ChallengeSolo gamemode="challenge:solo" />}
+      <Paper radius='md' p='xl' withBorder>
+        {gamemode === 'challenge' && <ChallengeSolo gamemode='challenge:solo' />}
       </Paper>
     </Container>
   );

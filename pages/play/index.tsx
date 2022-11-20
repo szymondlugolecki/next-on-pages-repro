@@ -2,22 +2,20 @@
 import { useRouter } from 'next/router';
 
 // Components
-import { Container, Group, Tabs, HoverCard, Text, Paper } from '@mantine/core';
+import { Group, HoverCard, Paper, Tabs, Text } from '@mantine/core';
 import { useSession } from 'next-auth/react';
-import { Loading } from '../../components/Loading/Loading';
 import { GameHandler } from '../../components/GameHandler/GameHandler';
+import Loading from '../../components/Layout/Loading';
 
 // Types
 
 // Styles
-import styles from './Play.styles';
 
 import { availableGamemodes, gamemodes } from '../../lib/constants';
-import { Gamemode } from '../../types/GameplayTypes';
 import { capitalize } from '../../lib/functions';
+import { Gamemode } from '../../types/GameplayTypes';
 
 export default function PlayPage() {
-  const { classes } = styles();
   const { query } = useRouter();
   const { status } = useSession();
 
@@ -26,13 +24,13 @@ export default function PlayPage() {
   const gameModeFormat = (gamemode: Gamemode) => capitalize(gamemode.split(':').join(' '));
 
   const comingSoon = (gamemode: Gamemode) => (
-    <HoverCard shadow="md" withArrow>
+    <HoverCard shadow='md' withArrow>
       <HoverCard.Target>
         <Text>{gameModeFormat(gamemode)}</Text>
       </HoverCard.Target>
       <HoverCard.Dropdown>
-        <Group position="left" noWrap>
-          <Text size="sm" weight="bold">
+        <Group position='left' noWrap>
+          <Text size='sm' weight='bold'>
             Coming soon! 🔥
           </Text>
         </Group>
@@ -56,23 +54,19 @@ export default function PlayPage() {
   );
 
   const gameModePanels = gamemodes.map((gamemode, index) => (
-    <Tabs.Panel key={index} value={gamemode} pt="xs">
-      <Paper shadow="xl" radius="md" p="lg" withBorder>
+    <Tabs.Panel key={index} value={gamemode} pt='xs'>
+      <Paper shadow='xl' radius='md' p='lg' withBorder>
         <GameHandler gamemode={gamemode} />
       </Paper>
     </Tabs.Panel>
   ));
 
   return (
-    <Container className={classes.container}>
-      <Group position="center" grow spacing="xl">
-        <Tabs value={query.activeTab as string}>
-          {gameModeTabs}
-          {gameModePanels}
-        </Tabs>
-      </Group>
-      {/* <Stats data={statsLearnData.data} />
-      <Stats data={statsChallengeData.data} /> */}
-    </Container>
+    <Group position='center' grow spacing='xl'>
+      <Tabs value={query.activeTab as string}>
+        {gameModeTabs}
+        {gameModePanels}
+      </Tabs>
+    </Group>
   );
 }

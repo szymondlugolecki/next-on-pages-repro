@@ -1,22 +1,18 @@
-import React from 'react';
-import { Container, Group, Anchor } from '@mantine/core';
+import { Anchor, Container, Group } from '@mantine/core';
 import { Globe } from 'tabler-icons-react';
 
+import { footerLinks } from '../../../lib/constants';
 import styles from './Footer.styles';
 
-interface FooterLayout {
-  links: { link: string; label: string }[];
-}
-
-export function FooterLayout({ links }: FooterLayout) {
+export default function FooterLayout() {
   const { classes } = styles();
-  const items = links.map((link) => (
+  const items = footerLinks.map((link) => (
     <Anchor<'a'>
-      color="dimmed"
+      color='dimmed'
       key={link.label}
-      href={link.link}
+      href={link.url}
       onClick={(event) => event.preventDefault()}
-      size="sm"
+      size='sm'
     >
       {link.label}
     </Anchor>

@@ -1,19 +1,17 @@
 // Hooks
-import { useState } from 'react';
 
 // Components
-import { Text, Center, Box, Container } from '@mantine/core';
 // @ts-ignore
-import { ComposableMap, Geographies, Geography, ZoomableGroup } from 'react-simple-maps';
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
 // Types
-import type { GameType, Region, Subregion } from '../../types/GameplayTypes';
+import type { Region, Subregion } from '../../types/GameplayTypes';
 
 // Styles
 // import styles from './Hint.styles';
 
 // Client-Side Constants & Functions
-import { map, defaultConfig, geoURL } from '../../lib/constants';
+import { defaultConfig, geoURL, map } from '../../lib/constants';
 
 export function Map({
   hint,
@@ -28,12 +26,13 @@ export function Map({
     map.find((r) => r.name === region) || map.find((r) => r.name === subregion) || defaultConfig;
 
   return (
-    <ComposableMap projectionConfig={configByRegion} projection="geoEqualEarth">
+    <ComposableMap projectionConfig={configByRegion} projection='geoEqualEarth'>
       <Geographies geography={geoURL}>
-        {({ geographies }) => geographies.map((geo) => {
+        {({ geographies }) =>
+          geographies.map((geo) => {
             if (geo.properties['Alpha-2'] === hint) console.log(geo.properties['Alpha-2']);
             return (
-            <Geography
+              <Geography
                 key={geo.rsmKey}
                 geography={geo}
                 fill={
@@ -41,11 +40,12 @@ export function Map({
                     ? '#fa5252'
                     : '#69db7c'
                 }
-                stroke="black"
+                stroke='black'
                 strokeWidth={0.75}
               />
             );
-          })}
+          })
+        }
       </Geographies>
     </ComposableMap>
   );

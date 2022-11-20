@@ -1,25 +1,10 @@
 // Hooks
-import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm } from '@mantine/form';
-import { useRouter } from 'next/router';
 
 // Components
-import {
-  Text,
-  Group,
-  Button,
-  Divider,
-  Switch,
-  Chip,
-  Stepper,
-  Card,
-  UnstyledButton,
-} from '@mantine/core';
-import { InfoCircle } from 'tabler-icons-react';
+import { Group, Text, UnstyledButton } from '@mantine/core';
 
 // Types
-import { Region, RegionsSelectTypes, GameType } from '../../types/GameplayTypes';
+import { RegionsSelectTypes } from '../../types/GameplayTypes';
 
 // Styles
 import styles from './RegionCards.styles';
@@ -55,13 +40,11 @@ export function RegionCards({ form, settings }: RegionsSelectTypes) {
         onClick={() => handleSelection()}
         className={addClasses(
           classes.item,
-          selected ? classes.regionCardSelected : classes.regionCard
+          selected ? classes.regionCardSelected : classes.regionCard,
         )}
       >
-        <Text weight={500} size="xl">
-          • 
-{' '}
-{capitalize(region)}
+        <Text weight={500} size='xl'>
+          • {capitalize(region)}
         </Text>
       </UnstyledButton>
     );

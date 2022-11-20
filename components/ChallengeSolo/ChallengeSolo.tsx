@@ -4,18 +4,18 @@ import { useRouter } from 'next/router';
 // import { useState } from 'react';
 
 // Components
-import { Text, Group, Button, Divider, Switch, Chip, Stack, Checkbox, Box } from '@mantine/core';
-import { Flag, Map, CurrentLocation, Crown, X } from 'tabler-icons-react';
-import { RegionCards } from '../RegionCards/RegionCards';
+import { Box, Button, Checkbox, Divider, Group, Stack, Text } from '@mantine/core';
+import { CurrentLocation, Flag, Map } from 'tabler-icons-react';
 import { DependenceCards } from '../DependenceCards/DependenceCards';
+import { RegionCards } from '../RegionCards/RegionCards';
 
 // Types
 import {
-  Region,
   Dependence,
-  Gamemode,
   GameCreationForm,
+  Gamemode,
   GameType,
+  Region,
 } from '../../types/GameplayTypes';
 
 // Styles
@@ -35,8 +35,10 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
       regions: ['europe'],
     } as GameCreationForm,
     validate: {
-      dependence: (dependence: Dependence) => (!dependenceList.includes(dependence) ? 'Choose between All/Dependent/Independent' : null),
-      regions: (arr: Region[]) => (arr.some((region) => !allRegions.includes(region)) ? 'Invalid region provided' : null),
+      dependence: (dependence: Dependence) =>
+        !dependenceList.includes(dependence) ? 'Choose between All/Dependent/Independent' : null,
+      regions: (arr: Region[]) =>
+        arr.some((region) => !allRegions.includes(region)) ? 'Invalid region provided' : null,
     },
   });
 
@@ -74,7 +76,7 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
   return (
     <form onSubmit={form.onSubmit((values) => createGame(values))}>
       <Stack>
-        <Text size="lg" weight="bold">
+        <Text size='lg' weight='bold'>
           Questions
         </Text>
 
@@ -85,53 +87,53 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
         >
           <Checkbox
             className={classes.checkbox}
-            size="xl"
+            size='xl'
             ml={33}
             label={
               <Group>
                 <CurrentLocation size={36} />
-                <Text size="xl">Capital Cities</Text>
+                <Text size='xl'>Capital Cities</Text>
               </Group>
             }
-            value="capitalCities"
+            value='capitalCities'
           />
           <Checkbox
             className={classes.checkbox}
-            size="xl"
+            size='xl'
             ml={33}
             label={
               <Group>
                 <Map size={36} />
-                <Text size="xl">Map</Text>
+                <Text size='xl'>Map</Text>
               </Group>
             }
-            value="map"
+            value='map'
           />
           <Checkbox
             className={classes.checkbox}
-            size="xl"
+            size='xl'
             ml={33}
             label={
               <Group>
                 <Flag size={36} />
-                <Text size="xl">Flags</Text>
+                <Text size='xl'>Flags</Text>
               </Group>
             }
-            value="flags"
+            value='flags'
           />
         </Checkbox.Group>
 
-        <Divider my="sm" variant="dashed" />
+        <Divider my='sm' variant='dashed' />
 
-        <Text size="lg" weight="bold">
+        <Text size='lg' weight='bold'>
           Regions
         </Text>
 
         <RegionCards form={form} settings={settings} />
 
-        <Divider my="sm" variant="dashed" />
+        <Divider my='sm' variant='dashed' />
 
-        <Text size="lg" weight="bold">
+        <Text size='lg' weight='bold'>
           Advanced
         </Text>
 
@@ -139,14 +141,14 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
           <DependenceCards form={form} settings={settings} />
         </Box>
 
-        <Divider my="sm" variant="dashed" />
+        <Divider my='sm' variant='dashed' />
       </Stack>
 
-      <Group position="apart" mt="xl">
-        <Button color="blue" size="lg">
+      <Group position='apart' mt='xl'>
+        <Button color='blue' size='lg'>
           SAVE
         </Button>
-        <Button type="submit" size="lg">
+        <Button type='submit' size='lg'>
           START
         </Button>
       </Group>

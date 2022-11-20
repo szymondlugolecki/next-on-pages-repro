@@ -1,31 +1,16 @@
 // Hooks
-import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm } from '@mantine/form';
 import 'next';
 
 // Components
-import {
-  Text,
-  Group,
-  Button,
-  Divider,
-  Switch,
-  Chip,
-  Stepper,
-  Card,
-  UnstyledButton,
-} from '@mantine/core';
-import { InfoCircle, Flag2, Map, CurrentLocation } from 'tabler-icons-react';
+import { Text, UnstyledButton } from '@mantine/core';
 
 // Types
-import { Region, GameTypeCardProps } from '../../types/GameplayTypes';
+import { GameTypeCardProps } from '../../types/GameplayTypes';
 
 // Styles
 import styles from './GameTypeCard.styles';
 
 // Client-Side Constants & Functions
-import { gameModeCardData } from '../../lib/constants';
 import { addClasses } from '../../lib/functions';
 
 export function GameTypeCard({
@@ -59,7 +44,7 @@ export function GameTypeCard({
       )}
     >
       <Icon />
-      <Text weight={500} size="xl">
+      <Text weight={500} size='xl'>
         {title}
       </Text>
     </UnstyledButton>
