@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import {
-  Dependence, Gamemode,
-  Region, ResponseData
-} from '../../../../types/GameplayTypes';
+import { Dependence, Gamemode, Region, ResponseData } from '../../../../types/GameplayTypes';
 
 import {
-  allRegions, availableGamemodes, dependenceList, gamemodes
+  allRegions,
+  availableGamemodes,
+  dependenceList,
+  gamemodes,
 } from '../../../../lib/constants';
 import QuestionsGenerator from '../../../../lib/QuestionsGenerator';
 
@@ -20,7 +20,7 @@ import QuestionsGenerator from '../../../../lib/QuestionsGenerator';
 const basicValidation = (
   gamemode: Gamemode,
   regions: Region[],
-  dependence: Dependence
+  dependence: Dependence,
 ): string | null => {
   console.log(gamemode, regions, dependence);
   // * general
@@ -40,7 +40,8 @@ const basicValidation = (
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
-  const throwError = (error?: string, msg?: string, code?: number) => res.status(code || 400).json({ error, msg });
+  const throwError = (error?: string, msg?: string, code?: number) =>
+    res.status(code || 400).json({ error, msg });
 
   const returnResponse = (msg: string, code?: number) => res.status(code || 200).json({ msg });
 
@@ -73,11 +74,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
     // Check if initialized (filtered) successfully
     if (!success) {
-    {
-return throwError(
-      "Couldn't retrieve enough countries to start the game. Please select more options",
-    );
-}
+      return throwError(
+        "Couldn't retrieve enough countries to start the game. Please select more options",
+      );
+    }
 
     const questions = questionsGenerator.generateQuestions();
     const answers = questionsGenerator.getAnswers();
@@ -92,7 +92,7 @@ return throwError(
       'ALL UNIQUE? =',
       p.length === Array.from(new Set(p)).length,
       p.length,
-      Array.from(new Set(p)).length
+      Array.from(new Set(p)).length,
     );
 
     return returnResponse(JSON.stringify({ questions }));

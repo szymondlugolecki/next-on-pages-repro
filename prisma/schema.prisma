@@ -6,59 +6,56 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
-
-model Account {
-  id                 String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String
-  providerType       String
-  providerId         String
-  providerAccountId  String
-  refreshToken       String?
-  accessToken        String?
-  accessTokenExpires DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  user               User      @relation(fields: [userId], references: [id])
-
-  @@unique([providerId, providerAccountId])
-}
-
 model Session {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
   userId       String
   expires      DateTime
-  sessionToken String   @unique
-  accessToken  String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+model Account {
+  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.String
+  access_token       String?  @db.String
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.String
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
 
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
-  email         String?   @unique
+  email         String    @unique
   emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   accounts      Account[]
   sessions      Session[]
-  nickname      String
+  nickname      String?   @unique
   vip           Boolean   @default(false)
   banned        Boolean   @default(false)
   ducats        Int       @default(0)
-  nameChanges   Int       @default(0)
-  avatar        String?
+  nameChanges   Int       @default(1)
+
+  @@unique([id, email, nickname])
 }
 
-model VerificationRequest {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  identifier String
+model VerificationToken {
+  identifier String   @id @default(auto()) @map("_id") @db.ObjectId
   token      String   @unique
   expires    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
 }

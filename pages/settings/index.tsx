@@ -15,13 +15,9 @@ import type { PrivateUser } from '../../types/API';
 import type { NicknameChangeForm } from '../../types/ComponentProps';
 
 import httpClient, { handleAxiosError } from '../../lib/axiosClient';
-import {
-  formValidators,
-  getUserByEmail,
-  handleFaunaError,
-  timestampFormat,
-} from '../../lib/edgeFunctions';
+import { formValidators, handlePrismaError, timestampFormat } from '../../lib/edgeFunctions';
 import { showError, showSuccess } from '../../lib/functions';
+import client from '../../lib/prismaClient';
 
 // Styles
 
@@ -167,30 +163,31 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   // Check the database
   try {
-    const user = await getUserByEmail(token.email);
-    if (!user) return { props };
+    const user = await client.user.findFirstOrThrow({
+      where: {
+        email: token.user.email,
+      },
+    });
+
     console.log('user', user);
 
-    const {
-      ts,
-      data: { banned, nickname, vip, email, nChanges, picture },
-    } = user;
+    const { createdAt, banned, nickname, vip, email, nameChanges, image } = user;
 
     return {
       props: {
         user: {
-          joined: timestampFormat(ts / 1000),
+          joined: timestampFormat(createdAt.getTime()),
           banned,
           nickname,
           vip,
           email,
-          nChanges,
-          picture: picture || null,
+          nameChanges,
+          image,
         },
       },
     };
   } catch (error) {
-    handleFaunaError(error);
+    handlePrismaError(error);
     return { props };
   }
 };

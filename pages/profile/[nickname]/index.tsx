@@ -5,8 +5,9 @@ import { Avatar, Badge, Container, Group, Stack, Text, Title } from '@mantine/co
 import type { GetServerSideProps } from 'next';
 import { useSession } from 'next-auth/react';
 import Loading from '../../../components/Layout/Loading';
-import { getUserByName, handleFaunaError, timestampFormat } from '../../../lib/edgeFunctions';
+import { handlePrismaError, timestampFormat } from '../../../lib/edgeFunctions';
 import { PublicUser } from '../../../types/API';
+import client from '../../../lib/prismaClient';
 
 // Types
 
@@ -60,23 +61,24 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const queryNickname = params?.nickname;
   const props = { user: null };
 
-  // If invalid nickname
+  // Return if invalid nickname provided
   if (!queryNickname || Array.isArray(queryNickname)) return { props };
 
-  // Check the database
   try {
-    const user = await getUserByName(queryNickname);
+    // Database query
+    const user = await client.user.findFirstOrThrow({
+      where: {
+        nickname: queryNickname,
+      },
+    });
     console.log('user', user);
 
-    const {
-      ts,
-      data: { banned, nickname, vip },
-    } = user;
+    const { createdAt, banned, nickname, vip } = user;
 
     return {
       props: {
         user: {
-          joined: timestampFormat(ts / 1000),
+          joined: timestampFormat(createdAt.getTime()),
           banned,
           nickname,
           vip,
@@ -84,7 +86,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       },
     };
   } catch (error) {
-    handleFaunaError(error);
+    handlePrismaError(error);
     return { props };
   }
 };

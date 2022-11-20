@@ -1,5 +1,5 @@
-import { UserQuery } from '../types/API';
-import faunaClient, { q } from './prismaClient';
+import { Prisma } from '@prisma/client/edge';
+import log from 'loglevel';
 
 export const formValidators = {
   email: (email: string) => {
@@ -33,49 +33,62 @@ export const emailToNickname = (email: string) => {
   return `${nickname}-${nicknameID}`;
 };
 
-export const handleFaunaError = (error: any) => {
-  const { code, description } = error.requestResult.responseContent.errors[0];
-  let status;
+interface SuccessResponse {
+  success: true;
+  message?: string;
+  data?: any;
+}
 
-  switch (code) {
-    case 'unauthorized':
-    case 'authentication failed':
-      status = 401;
-      break;
-    case 'permission denied':
-      status = 403;
-      break;
-    case 'instance not found':
-      status = 404;
-      break;
-    case 'instance not unique':
-    case 'contended transaction':
-      status = 409;
-      break;
-    default:
-      status = 500;
-  }
+interface ErrorResponse {
+  error: true;
+  message: string;
+}
 
-  console.error(code, description, status);
-  return { code, description, status };
-};
-
-export const sendResponse = (
-  message: { [key: string]: string | boolean | object },
-  status: number,
-) =>
-  new Response(JSON.stringify(message), {
+export const sendError = (message: string, status: number) =>
+  new Response(JSON.stringify({ error: true, message } as ErrorResponse), {
     status,
     headers: {
       'content-type': 'application/json',
     },
   });
 
-export const getUserByName = (nickname: string) =>
-  faunaClient.query(q.Get(q.Match(q.Index('user_by_nickname'), nickname))) as Promise<UserQuery>;
+export const sendSuccess = (message?: string, data?: any) =>
+  new Response(JSON.stringify({ success: true, message, data } as SuccessResponse), {
+    status: 201,
+    headers: {
+      'content-type': 'application/json',
+    },
+  });
 
-export const getUserByEmail = (email: string) =>
-  faunaClient.query(q.Get(q.Match(q.Index('user_by_email'), email))) as Promise<UserQuery>;
+export const handlePrismaError = (
+  e: any,
+):
+  | { isError: true; error: { code: string; message: string; name: string; cause: unknown } }
+  | { isError: false; error: null } => {
+  if (e instanceof Prisma.PrismaClientKnownRequestError) {
+    // The .code property can be accessed in a type-safe manner
+    const { code, message, name, cause } = e;
+    log.error(code, message, name, cause);
+    return { isError: true, error: { code, message, name, cause } };
+  }
+  return { isError: false, error: null };
+  throw e;
+};
+
+export const handleError = (
+  e: any,
+  customError: { message: string; code: number } = {
+    message: 'Unexpected error. Try again later.',
+    code: 400,
+  },
+) => {
+  const { isError, error } = handlePrismaError(e);
+  if (isError) {
+    if (error.code.startsWith('P1')) return sendError('Try again later...', 500);
+    else return sendError(customError.message, customError.code);
+  }
+  return sendError(customError.message, customError.code);
+};
 
 export const timestampFormat = (ts: number) =>
   new Intl.DateTimeFormat([], { dateStyle: 'long' }).format(new Date(ts)) || '-';

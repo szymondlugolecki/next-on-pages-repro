@@ -1,34 +1,38 @@
 import 'next-auth';
 import 'next-auth/jwt';
-
-interface SubUser {
-  ducats: number;
-  vip: boolean;
-  nChanges: number;
-  nickname: string;
-  picture: string | null;
-}
+import type { User as PrismaUser } from '@prisma/client';
 
 declare module 'next-auth' {
   /**
    * The shape of the user object returned in the OAuth providers' `profile` callback,
    * or the second parameter of the `session` callback, when using a database.
    */
-  interface User extends DefaultSession.User, SubUser {
+  interface User extends PrismaUser {
     email: string;
+    name: string | null;
+    image: string | null;
   }
   /**
    * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
    */
   interface Session {
-    user: Omit<User, 'id'>;
+    user?: User;
   }
 }
 
 declare module 'next-auth/jwt' {
   /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
-  interface JWT extends JWTType {
-    email: string;
-    user?: SubUser | undefined;
+
+  interface JWTUser extends PrismaUser {}
+
+  // interface User extends PrismaUser {
+  //   email: string;
+  //   name: string | null;
+  //   image: string | null;
+  // }
+
+  // jwt({ token })
+  interface JWT {
+    user: JWTUser;
   }
 }

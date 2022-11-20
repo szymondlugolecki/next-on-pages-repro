@@ -2,19 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import NextAuth from 'next-auth';
 import EmailProvider from 'next-auth/providers/email';
 import GoogleProvider from 'next-auth/providers/google';
-import { emailToNickname, getUserByEmail, handleFaunaError } from '../../../lib/edgeFunctions';
+import { emailToNickname, handlePrismaError } from '../../../lib/edgeFunctions';
 
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '../../../lib/prismaClient';
-
-const initialValues = (nickname: string) => ({
-  nickname,
-  vip: false,
-  banned: false,
-  ducats: 0,
-  nChanges: 1,
-  picture: null,
-});
 
 const aDay = 60 * 60 * 24;
 
@@ -38,38 +29,66 @@ const auth = async (req: NextApiRequest, res: NextApiResponse) => {
     },
     callbacks: {
       async jwt({ token, user, isNewUser }) {
-        if (user?.email && isNewUser === true) {
+        console.log('JWT', token, user, isNewUser);
+
+        if (user) {
+          token.user = user;
+        }
+
+        // First login
+        if (isNewUser === true && user?.email) {
+          // Assign a randomly generated nickname based on user's email
           try {
             const genericNickname = emailToNickname(user.email);
+            const userDB = await prisma.user.update({
+              where: {
+                email: user.email,
+              },
+              data: {
+                nickname: genericNickname,
+              },
+            });
 
-            await setInitialValues(user.email, genericNickname);
-            token.user = initialValues(genericNickname);
+            token.user = userDB;
           } catch (error) {
-            handleFaunaError(error);
+            handlePrismaError(error);
           }
         }
 
-        if (req.url === '/api/auth/session?update' && token.email) {
+        // Session Refresh Request
+        if (req.url === '/api/auth/session?update') {
+          // Fetch the user from the database
           try {
-            // @ts-ignore
-            const { data } = await getUserByEmail(token.email);
-            const { vip, ducats, nChanges, nickname, picture } = data;
+            const userDB = await prisma.user.findFirstOrThrow({
+              where: {
+                email: token.user.email,
+              },
+            });
 
-            token.user = { vip, ducats, nChanges, nickname, picture };
-            console.log('*********** UPDATED USER ***********', token.user);
+            // Update the token
+            token.user = userDB;
+            console.log('Session Update Called', 'Updated User', token.user);
           } catch (error) {
-            handleFaunaError(error);
+            handlePrismaError(error);
           }
         }
 
         return token;
       },
       async session({ session, token }) {
-        if (token && token.user) {
-          session.user = { ...token.user, email: token.email };
+        if (!session.user) console.log('Catch!', 'User does not exist in session');
+        if (token) {
+          session.user = token.user;
         }
-
         return session;
+      },
+      async signIn({ user, credentials, profile }) {
+        console.log(credentials, profile);
+        console.log('Is allowed to sign in', user.banned);
+        return true;
+
+        // if (user.banned) return false
+        // return true
       },
     },
     pages: {
@@ -92,7 +111,7 @@ const auth = async (req: NextApiRequest, res: NextApiResponse) => {
       logo: 'favicon.svg', // Absolute URL to image
       buttonText: '#40c057', // Hex color code
     },
-    debug: true,
+    debug: false,
   });
 };
 
