@@ -1,33 +1,76 @@
 import bundleFunc from '@next/bundle-analyzer';
-import nextSafe from 'next-safe';
 
-const isDev = process.env.NODE_ENV !== 'production';
+// const isDev = process.env.NODE_ENV !== 'production';
 
 const withBundleAnalyzer = bundleFunc({
   enabled: process.env.ANALYZE === 'true',
 });
 
+// nextSafe({
+//   isDev,
+//   contentSecurityPolicy: {
+//     'prefetch-src': false, // securetoken.googleapis.com identitytoolkit.googleapis.com
+//     'connect-src':
+//       "'self' localhost:3000 localhost:8787 geogenius-1c608.firebaseapp.com identitytoolkit.googleapis.com googleapis.com securetoken.googleapis.com apis.google.com",
+//     'script-src': "'self' apis.google.com geogenius-1c608.firebaseapp.com",
+//     'frame-src': "'self' geogenius-1c608.firebaseapp.com",
+//     'img-src': "'self' lh3.googleusercontent.com countryflagsapi.com",
+//     'default-src': "'self' localhost:3000 localhost:8787",
+//   },
+// }),
+
 /**
  * @type {import('next').NextConfig}
  **/
+
+const ContentSecurityPolicy = `
+ default-src 'self' localhost:3000 localhost:8787;
+ script-src 'self';
+ img-src 'self' lh3.googleusercontent.com countryflagsapi.com;
+ style-src 'self' example.com;
+ font-src 'self';  
+ connect-src 'self' localhost:3000 localhost:8787
+`;
 
 export default withBundleAnalyzer({
   async headers() {
     return [
       {
         source: '/(.*)',
-        headers: nextSafe({
-          isDev,
-          contentSecurityPolicy: {
-            'prefetch-src': false, // securetoken.googleapis.com identitytoolkit.googleapis.com
-            'connect-src':
-              "'self' localhost:3000 localhost:8787 geogenius-1c608.firebaseapp.com identitytoolkit.googleapis.com googleapis.com securetoken.googleapis.com apis.google.com",
-            'script-src': "'self' apis.google.com geogenius-1c608.firebaseapp.com",
-            'frame-src': "'self' geogenius-1c608.firebaseapp.com",
-            'img-src': "'self' lh3.googleusercontent.com countryflagsapi.com",
-            'default-src': "'self' localhost:3000 localhost:8787",
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
           },
-        }),
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+        ],
       },
     ];
   },
