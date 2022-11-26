@@ -1,37 +1,11 @@
 // Hooks
-import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm, UseFormReturnType } from '@mantine/form';
-import { useRouter } from 'next/router';
+import { UseFormReturnType } from '@mantine/form';
 
 // Components
-import {
-  Text,
-  Group,
-  Button,
-  Divider,
-  Switch,
-  Chip,
-  Stack,
-  Card,
-  SegmentedControl,
-  Container,
-  Box,
-} from '@mantine/core';
-import { Reset } from '@mantine/form/lib/types';
-import { Hint } from '../Hint/Hint';
-
-import { Answers } from '../Answers/Answers';
+import { Text, Button, Stack, Box } from '@mantine/core';
 
 // Types
-import type {
-  Region,
-  GameType,
-  Dependence,
-  Gamemode,
-  GameCreationForm,
-  Question,
-} from '../../types/GameplayTypes';
+import type { GameCreationForm } from '../../types/Game';
 
 // Styles
 import styles from './AfterGameScreen.styles';
@@ -40,14 +14,14 @@ import styles from './AfterGameScreen.styles';
 
 export function AfterGameScreen({
   data,
-  gameReset,
+  gameForm,
 }: {
   data: {
     title: string;
     stats: string;
     description: string;
   }[];
-  gameReset: () => void;
+  gameForm: UseFormReturnType<GameCreationForm>;
 }) {
   const { classes } = styles();
   const stats = data.map((stat) => (
@@ -59,15 +33,15 @@ export function AfterGameScreen({
   ));
 
   return (
-    <Stack spacing="xl">
-      <Text size="xl" weight="bold">
+    <Stack spacing='xl'>
+      <Text size='xl' weight='bold'>
         Congratulations
       </Text>
 
       <div className={classes.statsContainer}>{stats}</div>
 
       <Box>
-        <Button onClick={gameReset}>Continue</Button>
+        <Button onClick={() => gameForm.reset()}>Continue</Button>
       </Box>
     </Stack>
   );

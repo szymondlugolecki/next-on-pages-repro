@@ -4,7 +4,7 @@
 import { Group, Text, UnstyledButton } from '@mantine/core';
 
 // Types
-import { DependenceChoiceTypes } from '../../types/GameplayTypes';
+import { DependenceChoiceTypes } from '../../types/Game';
 
 // Styles
 import styles from './DependenceCards.styles';
@@ -13,15 +13,15 @@ import styles from './DependenceCards.styles';
 import { dependenceData } from '../../lib/constants';
 import { addClasses } from '../../lib/functions';
 
-export function DependenceCards({ form, settings }: DependenceChoiceTypes) {
+const DependenceCards = ({ gameForm, settings }: DependenceChoiceTypes) => {
   const { classes } = styles();
   const dependenceCards = dependenceData.map(({ value, label, Icon }, index) => {
-    const dependenceSelected = form.values.dependence || null;
+    const dependenceSelected = gameForm.values.dependence || null;
     const selected = dependenceSelected && dependenceSelected === value;
 
     const handleSelection = () => {
-      if (settings.dependence.mustSelectAll && value !== 'all') return;
-      form.setFieldValue('dependence', value);
+      if (settings.mustSelectAll && value !== 'all') return;
+      gameForm.setFieldValue('dependence', value);
     };
 
     return (
@@ -42,4 +42,6 @@ export function DependenceCards({ form, settings }: DependenceChoiceTypes) {
   });
 
   return <Group>{dependenceCards}</Group>;
-}
+};
+
+export default DependenceCards;

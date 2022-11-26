@@ -1,63 +1,84 @@
 // Hooks
 import { UseFormReturnType } from '@mantine/form';
-import { useToggle } from '@mantine/hooks';
 
 // Components
 import { Alert, Button, Container, Group, Stack, Text } from '@mantine/core';
 import { AlertCircle, InfoCircle } from 'tabler-icons-react';
-import { DependenceCards } from '../DependenceCards/DependenceCards';
-import { GameTypeCard } from '../GameTypeCard/GameTypeCard';
-import { RegionCards } from '../RegionCards/RegionCards';
+import DependenceCards from '../DependenceCards';
+import GameTypeCard from '../GameTypeCard';
+import RegionCards from '../RegionCards';
 
 // Types
-import type { GameCreationForm, Gamemode, Question } from '../../types/GameplayTypes';
+import type { GameCreationForm, Gamemode, Question } from '../../types/Game';
 
 // Styles
 
 // Client-Side Constants & Functions
 import { gameModeCardData, gamemodesSettings } from '../../lib/constants';
 
-import { createGame, showError } from '../../lib/functions';
+import { showError, showSuccess } from '../../lib/functions';
+import instance from '../../lib/axiosClient';
+import { useState } from 'react';
 
-export function GameCreator({
+const url = `${process.env.NEXT_PUBLIC_API_URL}/game/create`;
+
+interface GameCreateResponse {
+  data: {
+    success: true;
+    questions: Question[];
+    answers: number[];
+  };
+}
+
+const GameCreator = ({
   gamemode,
-  form,
-  setGameOn,
-  setQuestions,
+  gameForm,
 }: {
   gamemode: Gamemode;
-  form: UseFormReturnType<GameCreationForm>;
-  setGameOn: (on: boolean) => void;
-  setQuestions: (questions: Question[]) => void;
-}) {
-  const [ready, useReady] = useToggle([false, true]);
+  gameForm: UseFormReturnType<GameCreationForm>;
+}) => {
+  const [ready, setReady] = useState(false);
 
-  const createGameHandler = async (values: GameCreationForm) => {
-    const { error, response } = await createGame(values, gamemode);
+  const createGameHandler = async () => {
+    try {
+      const { dependence, gameTypes, regions } = gameForm.values;
+      const {
+        data: { data },
+      } = await instance.post<GameCreateResponse>(url, {
+        ...{ dependence, gameTypes, regions },
+        gamemode,
+      });
 
-    if (error) {
-      showError(response);
-      return console.error(error);
+      const { questions, answers } = data;
+
+      console.log(data);
+
+      gameForm.setValues({
+        answers,
+        questions,
+        gameOn: true,
+      });
+
+      showSuccess('Successfully created a game');
+    } catch (error) {
+      showError('Unexpected error has occured');
     }
-
-    setQuestions(response);
-    setGameOn(true);
   };
 
-  const resetGame = () => {
-    setQuestions([]);
-    setGameOn(false);
-  };
-
-  const gmSettings = gamemodesSettings.find((gm) => gm.name === gamemode);
+  const gmSettings = gamemodesSettings.filter((gm) => gm.name === gamemode)[0];
   if (!gmSettings) return <Text>Unknown error occured</Text>;
 
   const gameTypeCards = gameModeCardData.map((cardData, index) => (
-    <GameTypeCard settings={gmSettings.gameTypes} cardData={cardData} form={form} key={index} />
+    <GameTypeCard
+      settings={gmSettings.gameTypes}
+      cardData={cardData}
+      gameForm={gameForm}
+      key={index}
+    />
   ));
 
   return (
-    <form onSubmit={form.onSubmit(createGameHandler)} onReset={resetGame}>
+    <form onSubmit={gameForm.onSubmit(createGameHandler)} onReset={() => gameForm.reset()}>
       <Stack align='center' style={{ position: 'relative' }}>
         <div style={{ position: 'absolute', right: 0, top: 0 }}>
           <InfoCircle />
@@ -68,15 +89,15 @@ export function GameCreator({
         <Group spacing='xl'>{gameTypeCards}</Group>
 
         {/* Regions */}
-        <RegionCards form={form} settings={gmSettings.regions} />
+        <RegionCards gameForm={gameForm} settings={gmSettings.regions} />
 
         {/* All/Independent/Dependent Countries */}
-        <DependenceCards form={form} settings={gmSettings.dependence} />
+        <DependenceCards gameForm={gameForm} settings={gmSettings.dependence} />
 
         {/* Start & Ready Buttons */}
         <Group>
           {gamemode.startsWith('challenge') && (
-            <Button color='blue' onClick={() => useReady()}>
+            <Button color='blue' onClick={() => setReady((prevValue) => !prevValue)}>
               Ready
             </Button>
           )}
@@ -89,7 +110,7 @@ export function GameCreator({
           </Button>
         </Group>
 
-        {form.values.gameTypes.includes('map') && (
+        {gameForm.values.gameTypes.includes('map') && (
           <Container size='md'>
             <Alert
               icon={<AlertCircle size={16} />}
@@ -105,4 +126,6 @@ export function GameCreator({
       </Stack>
     </form>
   );
-}
+};
+
+export default GameCreator;

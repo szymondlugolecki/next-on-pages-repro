@@ -7,11 +7,11 @@ export const config = {
 };
 
 export default async function handler(req: NextRequest) {
-  if (req.method !== 'GET') return sendError('Only GET method is allowed', 405);
+  if (req.method !== 'GET') return sendError({ message: 'Only GET method is allowed', code: 405 });
 
   const { searchParams } = new URL(req.url);
   const nickname = searchParams.get('nickname');
-  if (!nickname) return sendError('No nickname provided', 400);
+  if (!nickname) return sendError({ message: 'No nickname provided', code: 400 });
 
   try {
     // 0 - available
@@ -22,7 +22,7 @@ export default async function handler(req: NextRequest) {
       },
     });
 
-    return sendSuccess(undefined, { available: !Boolean(count) });
+    return sendSuccess({ data: { available: !Boolean(count) } });
   } catch (error) {
     return handleError(error);
   }

@@ -41,9 +41,16 @@ export default function ProfilePage({ user }: { user: PublicUser | null }) {
 
   return (
     <Container>
-      <Group position='left' spacing='xl' align='flex-start' sx={() => ({ height: 240 })}>
-        <Avatar src={user.picture} size={240} radius='md' color='indigo' />
-        <Stack justify='space-between' py='xs' sx={() => ({ height: '100%' })}>
+      <Group position='left' spacing='xl' align='flex-start' sx={() => ({ height: 170 })}>
+        <Avatar
+          src={user.image}
+          size={170}
+          radius='md'
+          color='indigo'
+          alt={`${user.nickname}'s avatar`}
+          style={{ border: '3px solid rgba(255, 255, 255, .3)' }}
+        />
+        <Stack justify='space-between' sx={() => ({ height: '100%' })}>
           <Stack align='flex-start' justify='flex-start' spacing={0}>
             <StatusBadge />
             <Title order={1}>{user.nickname}</Title>
@@ -73,7 +80,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     });
     console.log('user', user);
 
-    const { createdAt, banned, nickname, vip } = user;
+    const { createdAt, banned, nickname, vip, image } = user;
 
     return {
       props: {
@@ -82,6 +89,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
           banned,
           nickname,
           vip,
+          image,
         },
       },
     };

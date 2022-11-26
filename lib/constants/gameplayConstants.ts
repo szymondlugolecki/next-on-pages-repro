@@ -1,4 +1,4 @@
-import { Dependence, Gamemode, GameModeSetting, GameType, Region } from '../../types/GameplayTypes';
+import { Dependence, Gamemode, GameModeSetting, GameType, Region } from '../../types/Game';
 
 export const challengeQuestionLimit = 30;
 export const allRegions: Region[] = ['europe', 'americas', 'africa', 'asia', 'oceania'];

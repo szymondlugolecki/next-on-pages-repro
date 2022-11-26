@@ -1,6 +1,6 @@
 import { Crown, CrownOff, CurrentLocation, Flag2, Icon, Map, Omega } from 'tabler-icons-react';
 
-import { Dependence, GameTypeCardData, Region, Subregion } from '../../types/GameplayTypes';
+import { Dependence, GameTypeCardData, Region, Subregion } from '../../types/Game';
 
 export {
   allRegions,
@@ -43,7 +43,7 @@ export const geopolisFeatures: { title: string; description: string }[] = [
   },
 ];
 
-export const geoURL = `${process.env.NEXT_PUBLIC_API_URL}/worldmap.geo.json`;
+export const geoURL = `${process.env.NEXT_PUBLIC_URL}/worldmap.geo.json`;
 export const defaultConfig: {
   scale: number;
   rotate: [number, number, number];

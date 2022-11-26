@@ -1,14 +1,13 @@
 // Hooks
 import { useForm } from '@mantine/form';
-import { useState } from 'react';
 
 // Components
 import { Text } from '@mantine/core';
-import { GameCreator } from '../GameCreator/GameCreator';
-import { Quiz } from '../Quiz/Quiz';
+import GameCreator from '../GameCreator';
+import Quiz from '../Quiz';
 
 // Types
-import type { GameCreationForm, Gamemode, Question } from '../../types/GameplayTypes';
+import type { GameCreationForm, Gamemode } from '../../types/Game';
 
 // Styles
 
@@ -16,58 +15,44 @@ import type { GameCreationForm, Gamemode, Question } from '../../types/GameplayT
 import { allRegions, gamemodesSettings, gameTypesList } from '../../lib/constants';
 import { validateGameCreationForm } from '../../lib/functions';
 
-export function GameHandler({ gamemode }: { gamemode: Gamemode }) {
-  const [gameOn, setGameOn] = useState<boolean>(false);
-  const [questions, setQuestions] = useState<Question[]>();
+const GameHandler = ({ gamemode }: { gamemode: Gamemode }) => {
+  const settings = gamemodesSettings.filter((gm) => gm.name === gamemode)[0];
 
-  const [answersList, setAnswersList] = useState<{ index: number; time: number }[]>([]);
-  const addAnswer = (answer: { index: number; time: number }) =>
-    setAnswersList((value) => [...value, answer]);
-
-  const settings = gamemodesSettings.find((gm) => gm.name === gamemode);
-  if (!settings) return <Text>Unknown error occured</Text>;
-
-  const form = useForm<GameCreationForm>({
+  const gameForm = useForm<GameCreationForm>({
     initialValues: {
       gameTypes: settings.gameTypes.mustSelectAll ? gameTypesList : [],
       regions: settings.regions.mustSelectAll ? allRegions : [],
       dependence: 'all',
+      gameOn: false,
+      questions: [],
+      playerAnswers: [],
+      answers: [],
+      currentQuestion: 0,
     },
     validate: validateGameCreationForm,
   });
 
-  const gameReset = () => {
-    form.reset();
-    setQuestions([]);
-    setAnswersList([]);
-    setGameOn(false);
-  };
+  // const gameReset = () => {
+  //   form.reset();
+  //   // form.setValues({
+  //   //   gameOn: false,
+  //   //   questions: [],
+  //   //   playerAnswers: [],
+  //   // });
+  // };
 
-  // if game does not exist - render game creator
-  if (!gameOn) {
-    return (
-      <GameCreator
-        gamemode={gamemode}
-        form={form}
-        setGameOn={setGameOn}
-        setQuestions={setQuestions}
-      />
-    );
+  // Game Off
+  if (!gameForm.values.gameOn) {
+    return <GameCreator gamemode={gamemode} gameForm={gameForm} />;
   }
 
-  // if gameOn & questions exist - render game
-  if (questions) {
-    return (
-      <Quiz
-        gamemode={gamemode}
-        questions={questions}
-        answersList={answersList}
-        addAnswer={addAnswer}
-        gameReset={gameReset}
-      />
-    );
+  // Game On & Questions Exist
+  if (gameForm.values.questions.length) {
+    return <Quiz gamemode={gamemode} gameForm={gameForm} />;
   }
 
-  // handle error
+  // Game On but no questions
   return <Text>Error! No questions found</Text>;
-}
+};
+
+export default GameHandler;

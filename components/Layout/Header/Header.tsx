@@ -33,7 +33,7 @@ export default function HeaderLayout() {
         <Globe />
         <Group spacing={5} className={classes.links}>
           <HeaderLinks {...{ ...headerLinksProps, shrink: false }} />
-          {session && <UserMenu user={session.user} />}
+          {session?.user && <UserMenu user={session.user} />}
         </Group>
 
         <Burger

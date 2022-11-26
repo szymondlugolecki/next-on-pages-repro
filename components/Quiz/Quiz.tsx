@@ -1,22 +1,22 @@
 // Hooks
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 // Components
-import { Button, Container, Divider, Group, Modal, Text } from '@mantine/core';
-import { Answers } from '../Answers/Answers';
+import { Button, Container, Divider, Group, Modal } from '@mantine/core';
+import Answers from '../Answers';
 import { Hint } from '../Hint/Hint';
 
 // Types
 import { gameDataToStats } from '../../lib/functions';
-import type { Gamemode, Question } from '../../types/GameplayTypes';
+import type { GameCreationForm, Gamemode } from '../../types/Game';
 import { AfterGameScreen } from '../AfterGameScreen/AfterGameScreen';
 
 // Styles
-import styles from './Quiz.styles';
+// import styles from './Quiz.styles';
 
 // Client-Side Constants & Functions
 import { gameTypesX, shareAnswersGamemodes } from '../../lib/constants';
+import { UseFormReturnType } from '@mantine/form';
 
 const timeout = {
   capitalCities: 720,
@@ -24,115 +24,114 @@ const timeout = {
   flags: 900,
 };
 
-export function Quiz({
+const Quiz = ({
   gamemode,
-  questions,
-  answersList,
-  addAnswer,
-  gameReset,
+  gameForm,
 }: {
   gamemode: Gamemode;
-  questions: Question[];
-  answersList: {
-    index: number;
-    time: number;
-  }[];
-  addAnswer: (answer: { index: number; time: number }) => void;
-  gameReset: () => void;
-}) {
-  const { classes } = styles();
-  const [opened, setOpened] = useState(false);
-  const { push, query } = useRouter();
+  gameForm: UseFormReturnType<GameCreationForm>;
+}) => {
+  const [disableButtons, setDisableButtons] = useState<boolean>(false);
+  const [stopModalOpened, setStopModalOpened] = useState(false);
+  const currentQuestionIndex = gameForm.values.currentQuestion;
 
-  const [question, setQuestion] = useState<number>(0);
-  const nextQuestion = () => setQuestion((current) => current + 1);
+  const nextQuestion = () => {
+    console.log('next question', disableButtons);
+    gameForm.setFieldValue('currentQuestion', currentQuestionIndex + 1);
+    setDisableButtons(false);
+  };
 
-  const [answerIndex, setAnswerIndex] = useState<number | null>(null);
+  const q = gameForm.values.questions[currentQuestionIndex];
+  const gameTypeX = gameTypesX.filter((gt) => gt.name === q.gameType)[0];
 
-  const q = questions[question];
+  // * Question is undefined and current question index is higher than number of questions
+  if (!q && gameForm.values.questions.length === currentQuestionIndex) {
+    const correctAnswers = gameForm.values.questions.map((c) => c.correctAI || 1);
+    const stats = gameDataToStats(gameForm.values.playerAnswers, correctAnswers);
+    return <AfterGameScreen data={stats} gameForm={gameForm} />;
+  }
 
-  const answerClick = (answer: number, time: number) => {
-    // add answer to answersList
-    addAnswer({ index: answer, time });
-    setAnswerIndex(answer);
+  const playerAnswer: number | undefined =
+    gameForm.values.playerAnswers[currentQuestionIndex]?.index;
+  const correctAI: number = gameForm.values.answers[currentQuestionIndex] ?? -1;
+  console.log('correctAI', correctAI);
 
-    // if learn: wait 2 seconds and forward
+  const selectAnswer = (answer: number) => {
+    setDisableButtons(true);
+    // Add Player Answer
+    gameForm.insertListItem(
+      'playerAnswers',
+      { index: answer, time: Date.now() },
+      currentQuestionIndex + 1,
+    );
+
+    console.log('selectAnswer', 'gamemode', gamemode);
+
     if (gamemode.startsWith('learn')) {
+      // If Learn: Wait a second before moving forward
       setTimeout(() => {
         nextQuestion();
-        setAnswerIndex(null);
       }, timeout[q.gameType]);
-    }
-
-    // if challenge: forward right away
-    else if (gamemode.startsWith('challenge')) {
+    } else {
+      // If Challenge: Move forward right away
       nextQuestion();
-      setAnswerIndex(null);
     }
   };
 
-  // after game - render stats
-  if (!q && questions.length === question) {
-    const correctAnswers = questions.map((c) => c.correctAI || 1);
-    const stats = gameDataToStats(answersList, correctAnswers);
-    return <AfterGameScreen data={stats} gameReset={gameReset} />;
-  }
-
-  // check if data exists
-  if (!q || !q.hint || !q.answers) return <Text>Error</Text>;
-
-  const gameTypeX = gameTypesX.find((gt) => gt.name === q.gameType);
-
-  const resetButton = (
-    <>
-      <Divider my='sm' variant='dashed' />
-      <Group position='right'>
-        <Button variant='light' color='red' onClick={() => setOpened(true)}>
-          Stop
-        </Button>
-      </Group>
-    </>
-  );
-
   return (
     <Container>
-      {/* reset modal */}
+      {/* Reset Modal */}
       <Modal
-        opened={opened}
-        onClose={() => setOpened(false)}
+        opened={stopModalOpened}
+        onClose={() => setStopModalOpened(false)}
         title='Are you sure you want to quit?'
         centered
       >
         <Group align='center' position='right'>
-          <Button onClick={() => gameReset()}>Yes!</Button>
-          <Button onClick={() => setOpened(false)} color='red'>
+          <Button onClick={() => gameForm.reset()}>Yes!</Button>
+          <Button onClick={() => setStopModalOpened(false)} color='red'>
             No
           </Button>
         </Group>
       </Modal>
-      {/* hint - country name/map/flag */}
+
+      {/* Hint - a map/flag/country name */}
       <Hint
         gameType={q.gameType}
         hint={q.hint}
-        index={question}
+        index={gameForm.values.currentQuestion}
         regionData={{ region: q.region, subregion: q.subregion }}
       />
-      {/* divider - gameType, current question, number of questions */}
+
+      {/* Divider - contains gameType, current question, number of questions */}
       <Divider
         my='sm'
         variant='dashed'
-        label={`${gameTypeX ? gameTypeX.label : '?'} | Question: ${question}/${questions.length}`}
+        label={`${gameTypeX.label} | Question: ${gameForm.values.currentQuestion}/${gameForm.values.questions.length}`}
         labelPosition='center'
       />
-      {/* grid of answers */}
+
+      {/* Grid of 4 answers */}
       <Answers
-        answers={q.answers}
-        correctAI={q.correctAI}
-        answerIndex={answerIndex}
-        answerClick={answerClick}
-        setAnswerIndex={setAnswerIndex}
+        question={q}
+        selectAnswer={selectAnswer}
+        correctAI={correctAI}
+        disableButtons={disableButtons}
+        playerAnswer={playerAnswer}
       />
-      {shareAnswersGamemodes.includes(gamemode) && resetButton}
+
+      {shareAnswersGamemodes.includes(gamemode) && (
+        <>
+          <Divider my='sm' variant='dashed' />
+          <Group position='right'>
+            <Button variant='light' color='red' onClick={() => setStopModalOpened(true)}>
+              Stop
+            </Button>
+          </Group>
+        </>
+      )}
     </Container>
   );
-}
+};
+
+export default Quiz;

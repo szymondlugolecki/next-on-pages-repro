@@ -1,10 +1,10 @@
 import { Avatar, Menu, UnstyledButton } from '@mantine/core';
-import { User as SessionUser } from 'next-auth';
+import { User } from '@prisma/client';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { Logout, Settings, User } from 'tabler-icons-react';
+import { Logout, Settings, User as UserIcon } from 'tabler-icons-react';
 
-export function UserMenu({ user }: { user: Omit<SessionUser, 'id'> }) {
+export function UserMenu({ user }: { user: User }) {
   const { push } = useRouter();
 
   return (
@@ -18,8 +18,8 @@ export function UserMenu({ user }: { user: Omit<SessionUser, 'id'> }) {
         <Menu.Label>{user.nickname}</Menu.Label>
         <Menu.Item
           component='button'
-          icon={<User size={14} />}
-          onClick={() => push(`/profile/${user.nickname}`)}
+          icon={<UserIcon size={14} />}
+          onClick={() => push(`/profile/me`)}
         >
           Profile
         </Menu.Item>

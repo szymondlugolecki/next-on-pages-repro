@@ -1,6 +1,6 @@
 import 'next-auth';
 import 'next-auth/jwt';
-import type { User as PrismaUser } from '@prisma/client';
+import type { User as PrismaUser } from '@prisma/client/edge';
 
 declare module 'next-auth' {
   /**

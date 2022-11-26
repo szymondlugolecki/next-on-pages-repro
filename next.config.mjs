@@ -20,11 +20,12 @@ export default withBundleAnalyzer({
           isDev,
           contentSecurityPolicy: {
             'prefetch-src': false, // securetoken.googleapis.com identitytoolkit.googleapis.com
-            'connect-src': "'self' localhost:3000 localhost:8787 geogenius-1c608.firebaseapp.com identitytoolkit.googleapis.com googleapis.com securetoken.googleapis.com apis.google.com",
+            'connect-src':
+              "'self' localhost:3000 localhost:8787 geogenius-1c608.firebaseapp.com identitytoolkit.googleapis.com googleapis.com securetoken.googleapis.com apis.google.com",
             'script-src': "'self' apis.google.com geogenius-1c608.firebaseapp.com",
             'frame-src': "'self' geogenius-1c608.firebaseapp.com",
-            'img-src': "'self' lh3.googleusercontent.com",
-            'default-src': "'self' localhost:3000 localhost:8787"
+            'img-src': "'self' lh3.googleusercontent.com countryflagsapi.com",
+            'default-src': "'self' localhost:3000 localhost:8787",
           },
         }),
       },
@@ -48,6 +49,6 @@ export default withBundleAnalyzer({
     ignoreDuringBuilds: true,
   },
   experimental: {
-    runtime: "experimental-edge"
-  }
+    runtime: 'experimental-edge',
+  },
 });

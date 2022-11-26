@@ -1,13 +1,9 @@
 import { showNotification } from '@mantine/notifications';
 import { AlertTriangle, Check, InfoCircle, X } from 'tabler-icons-react';
-import type {
-  Dependence,
-  // GameCreationForm,
-  // Gamemode,
-  GameType,
-  Region,
-} from '../types/GameplayTypes';
+
 import { allRegions, dependenceList, gameTypesList } from './constants';
+
+import type { Dependence, GameType, Region } from '../types/Game';
 
 export const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -19,34 +15,6 @@ export function parseError(error: any) {
   }
   return 'Unknown error';
 }
-
-// : Promise<{ error: true; response: string } | { error: false; response: Question[] }>
-export const createGame = () =>
-  // gameSettings: GameCreationForm,
-  // gamemode: Gamemode
-  ({ error: false, response: 'okay' });
-// try {
-//   // Make the API call
-//   const url = `${process.env}/game/create/${gamemode.toLowerCase()}`;
-//   const {
-//     data: { questions },
-//   } = await instance.post<{ questions: Question[] }>(url, gameSettings);
-
-//   return { error: false, response: questions };
-// } catch (error: any) {
-//   let errorMessage: string = '';
-//   if (error && error.error && error.error.message) {
-//     errorMessage = error.error.message || '???';
-//     console.error('!Error!', errorMessage);
-//   } else if (axios.isAxiosError(error)) {
-//     errorMessage = error.message;
-//     console.error('Error:', errorMessage);
-//   } else {
-//     console.error('Unexpected error:', error);
-//     if (typeof error === 'string') errorMessage = error;
-//   }
-//   return { error: true, response: errorMessage || 'Unexpected error' };
-// }
 
 const compareArrays = (arr1: number[], arr2: number[]): [number | null, number, number] => {
   let correspondingCount = 0;
@@ -205,17 +173,6 @@ export const showWarn = (warning: string) =>
     icon: AlertTriangle({}),
     color: 'orange',
   });
-
-export function shuffle<T>(array: T[]): T[] {
-  const tempArray = [...array];
-  for (let i = tempArray.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = tempArray[i];
-    tempArray[i] = tempArray[j];
-    tempArray[j] = temp;
-  }
-  return tempArray;
-}
 
 export const capitalize = (text: string) =>
   text

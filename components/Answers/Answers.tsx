@@ -1,72 +1,44 @@
 // Hooks
-import { useState } from 'react';
-import { useToggle } from '@mantine/hooks';
-import { useForm, UseFormReturnType } from '@mantine/form';
-import { useRouter } from 'next/router';
 
 // Components
-import {
-  Text,
-  Group,
-  Button,
-  Divider,
-  Switch,
-  Chip,
-  Stepper,
-  Card,
-  SegmentedControl,
-  Container,
-  SimpleGrid,
-  UnstyledButton,
-} from '@mantine/core';
-import { Answer } from '../Answer/Answer';
+import { SimpleGrid } from '@mantine/core';
+import { Question } from '../../types/Game';
+import Answer from '../Answer';
 
 // Types
-import type {
-  Region,
-  GameType,
-  Dependence,
-  Gamemode,
-  GameCreationForm,
-  Question,
-} from '../../types/GameplayTypes';
 
 // Styles
 
 // Client-Side Constants & Functions
 
-export function Answers({
-  answers,
+const Answers = ({
+  question,
   correctAI,
-  answerIndex,
-  answerClick,
-  setAnswerIndex,
+  disableButtons,
+  selectAnswer,
+  playerAnswer,
 }: {
-  answers: string[];
-  correctAI?: number;
-  answerIndex: number | null;
-  answerClick: (answer: number, time: number) => void;
-  setAnswerIndex: (answered: number | null) => void;
-}) {
-  const start = Date.now();
-
-  const clickFunc = (index: number) => {
-    setAnswerIndex(index);
-    answerClick(index, Date.now() - start);
-  };
-
+  question: Question;
+  correctAI: number;
+  disableButtons: boolean;
+  selectAnswer: (answer: number) => void;
+  playerAnswer: number | undefined;
+}) => {
   return (
     <SimpleGrid cols={2}>
-      {answers.map((answer, index) => (
+      {question.answers.map((answer, index) => (
         <Answer
           text={answer}
-          index={index}
-          answerIndex={answerIndex}
+          selectAnswer={selectAnswer}
           correctAI={correctAI}
-          clickFunc={clickFunc}
+          playerAnswer={playerAnswer}
+          disableButtons={disableButtons}
+          index={index}
           key={index}
         />
       ))}
     </SimpleGrid>
   );
-}
+};
+
+export default Answers;

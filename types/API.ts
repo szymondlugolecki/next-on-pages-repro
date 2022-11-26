@@ -1,3 +1,23 @@
+export interface ErrorResponse {
+  error?: true;
+  code?: number;
+  message?: string;
+}
+
+export type SuccessResponse =
+  | {
+      success?: true;
+      code?: number;
+      message: string;
+      data?: any;
+    }
+  | {
+      success?: true;
+      code?: number;
+      message?: string;
+      data: any;
+    };
+
 export interface APIError {
   status: number;
   name: string;
@@ -24,14 +44,20 @@ export interface UserQuery {
 
 export interface PublicUser {
   joined: number;
-  picture?: string;
+  image: string;
   nickname: string;
   vip: boolean;
   banned: boolean;
 }
 
-export interface PrivateUser extends PublicUser {
+export interface PrivateUser {
+  joined: string;
+  banned: boolean;
+  nickname: string | null;
+  vip: boolean;
   email: string;
+  nameChanges: number;
+  image: string | null;
 }
 
 export type UserStatus = 'authenticated' | 'unauthenticated' | 'loading';

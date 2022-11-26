@@ -1,5 +1,17 @@
 import { Prisma } from '@prisma/client/edge';
 import log from 'loglevel';
+import { ErrorResponse, SuccessResponse } from '../types/API';
+
+export function shuffle<T>(array: T[]): T[] {
+  const tempArray = [...array];
+  for (let i = tempArray.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = tempArray[i];
+    tempArray[i] = tempArray[j];
+    tempArray[j] = temp;
+  }
+  return tempArray;
+}
 
 export const formValidators = {
   email: (email: string) => {
@@ -13,12 +25,17 @@ export const formValidators = {
   },
 };
 
-function getRandomInt(min: number, max: number) {
+export const getRandomInt = (min: number, max: number) => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min) + min);
   // The maximum is exclusive and the minimum is inclusive
-}
+};
+
+export const randomElement = <T>(arr: T[]): [T, number] => {
+  const rIndex = getRandomInt(0, arr.length);
+  return [arr[rIndex], rIndex];
+};
 
 export const emailToNickname = (email: string) => {
   const emailPrefix = email.substring(0, email.indexOf('@'));
@@ -33,28 +50,17 @@ export const emailToNickname = (email: string) => {
   return `${nickname}-${nicknameID}`;
 };
 
-interface SuccessResponse {
-  success: true;
-  message?: string;
-  data?: any;
-}
-
-interface ErrorResponse {
-  error: true;
-  message: string;
-}
-
-export const sendError = (message: string, status: number) =>
-  new Response(JSON.stringify({ error: true, message } as ErrorResponse), {
-    status,
+export const sendError = ({ message, code = 400, error = true }: ErrorResponse) =>
+  new Response(JSON.stringify({ error, message } as ErrorResponse), {
+    status: code,
     headers: {
       'content-type': 'application/json',
     },
   });
 
-export const sendSuccess = (message?: string, data?: any) =>
-  new Response(JSON.stringify({ success: true, message, data } as SuccessResponse), {
-    status: 201,
+export const sendSuccess = ({ message, data, code = 200, success }: SuccessResponse) =>
+  new Response(JSON.stringify({ success, message, data } as SuccessResponse), {
+    status: code,
     headers: {
       'content-type': 'application/json',
     },
@@ -84,10 +90,10 @@ export const handleError = (
 ) => {
   const { isError, error } = handlePrismaError(e);
   if (isError) {
-    if (error.code.startsWith('P1')) return sendError('Try again later...', 500);
-    else return sendError(customError.message, customError.code);
+    if (error.code.startsWith('P1')) return sendError({ message: 'Try again later...', code: 500 });
+    else return sendError({ message: customError.message, code: customError.code });
   }
-  return sendError(customError.message, customError.code);
+  return sendError({ message: customError.message, code: customError.code });
 };
 
 export const timestampFormat = (ts: number) =>

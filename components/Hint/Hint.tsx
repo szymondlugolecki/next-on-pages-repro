@@ -27,24 +27,32 @@ export function Hint({
     subregion: Subregion;
   };
 }) {
-  let hintElement;
+  const HintInside = () => {
+    switch (gameType) {
+      case 'map':
+        return <Map hint={hint} region={region} subregion={subregion} />;
+      case 'capitalCities':
+        return (
+          <Text size='xl' weight={700}>
+            {hint}
+          </Text>
+        );
+      case 'flags':
+        return (
+          <Container size='xl' style={{ display: 'block', position: 'relative' }}>
+            <Image radius='md' src={`https://countryflagsapi.com/png/${hint}`} alt='Country Flag' />
+          </Container>
+        );
+      default:
+        return null;
+    }
+  };
 
-  if (gameType === 'map') hintElement = <Map hint={hint} region={region} subregion={subregion} />;
-  else if (gameType === 'capitalCities') {
-    hintElement = (
-      <Text size='xl' weight={700}>
-        {hint}
-      </Text>
-    );
-  } else if (gameType === 'flags') {
-    hintElement = (
-      <Container size='xl' style={{ display: 'block', position: 'relative' }}>
-        <Image radius='md' src={`https://countryflagsapi.com/png/${hint}`} alt='Country Flag' />
-      </Container>
-    );
-  }
-
-  return <Center py='xl'>{hintElement}</Center>;
+  return (
+    <Center py='xl' style={{ height: '26rem' }}>
+      <HintInside />
+    </Center>
+  );
 }
 
 /**

@@ -10,13 +10,7 @@ import { DependenceCards } from '../DependenceCards/DependenceCards';
 import { RegionCards } from '../RegionCards/RegionCards';
 
 // Types
-import {
-  Dependence,
-  GameCreationForm,
-  Gamemode,
-  GameType,
-  Region,
-} from '../../types/GameplayTypes';
+import type { Dependence, GameCreationForm, Gamemode, GameType, Region } from '../../types/Game';
 
 // Styles
 import styles from './ChallengeSolo.styles';
@@ -70,7 +64,7 @@ export function ChallengeSolo({ gamemode }: { gamemode: Gamemode }) {
     }
   }
 
-  const settings = gamemodesSettings.find((gm) => gm.name === gamemode);
+  const settings = gamemodesSettings.filter((gm) => gm.name === gamemode)[0];
   if (!settings) return <Text>Unknown error occured</Text>;
 
   return (

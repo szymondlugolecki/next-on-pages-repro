@@ -9,41 +9,52 @@ import { Text, Button } from '@mantine/core';
 
 // Client-Side Constants & Functions
 
-export function Answer({
+const Answer = ({
   text,
   index,
-  answerIndex,
+  selectAnswer,
+  disableButtons,
   correctAI,
-  clickFunc,
+  playerAnswer,
 }: {
   text: string;
   index: number;
-  answerIndex: number | null;
-  correctAI: number | undefined;
-  clickFunc: (index: number) => void;
-}) {
-  let color: string = 'dark';
+  selectAnswer: (answer: number) => void;
+  disableButtons: boolean;
+  correctAI: number;
+  playerAnswer: number | undefined;
+}) => {
+  // const [buttonColor, setButtonColor] = useState<'dark' | 'green' | 'red'>('dark');
+  let color = 'dark';
 
-  // only bother if correctAI exists (learn gamemode)
-  if (correctAI !== undefined) {
-    // if answered anything & this is the correct answer, then color = green
-    if (answerIndex !== null && correctAI === index) color = 'green';
-    // if checked this, but its a wrong answer, then color = red
-    else if (index === answerIndex && correctAI !== answerIndex) color = 'red';
+  // Only color the buttons if buttons are disabled (user has answered)
+  // And if correct answers were provided
+  if (disableButtons && correctAI !== -1) {
+    // If selected the correct answer, color it green and nothing else
+    // If selected a wrong answer, color it red and the correct one green
+
+    if (correctAI === index) color = 'green';
+    else if (index === playerAnswer) color = 'red';
   }
 
   return (
     <Button
       onClick={() => {
-        if (!answerIndex) clickFunc(index);
+        if (!disableButtons) {
+          selectAnswer(index);
+        }
       }}
-      px="md"
-      size="lg"
+      style={{ cursor: disableButtons ? 'default' : 'pointer' }}
+      px='md'
+      size='lg'
       color={color}
+      // disabled={disableButtons}
     >
-      <Text size="lg" weight={600}>
+      <Text size='lg' weight={600}>
         {text}
       </Text>
     </Button>
   );
-}
+};
+
+export default Answer;

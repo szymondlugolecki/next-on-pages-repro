@@ -5,7 +5,7 @@
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 
 // Types
-import type { Region, Subregion } from '../../types/GameplayTypes';
+import type { Region, Subregion } from '../../types/Game';
 
 // Styles
 // import styles from './Hint.styles';
@@ -26,7 +26,7 @@ export function Map({
     map.find((r) => r.name === region) || map.find((r) => r.name === subregion) || defaultConfig;
 
   return (
-    <ComposableMap projectionConfig={configByRegion} projection='geoEqualEarth'>
+    <ComposableMap projectionConfig={configByRegion} projection='geoEqualEarth' height={400}>
       <Geographies geography={geoURL}>
         {({ geographies }) =>
           geographies.map((geo) => {
@@ -38,7 +38,7 @@ export function Map({
                 fill={
                   [geo.properties.iso_a2_eh, geo.properties.iso_a2].includes(hint)
                     ? '#fa5252'
-                    : '#69db7c'
+                    : '#4dabf7'
                 }
                 stroke='black'
                 strokeWidth={0.75}

@@ -7,7 +7,7 @@ import {
   Region,
   ShrinkedCountry,
   Subregion,
-} from '../types/GameplayTypes';
+} from '../types/Game';
 
 import {
   allRegions,

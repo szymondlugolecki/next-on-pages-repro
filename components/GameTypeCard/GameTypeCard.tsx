@@ -1,25 +1,24 @@
 // Hooks
-import 'next';
 
 // Components
-import { Text, UnstyledButton } from '@mantine/core';
 
 // Types
-import { GameTypeCardProps } from '../../types/GameplayTypes';
+import { GameTypeCardProps } from '../../types/Game';
 
 // Styles
 import styles from './GameTypeCard.styles';
 
 // Client-Side Constants & Functions
 import { addClasses } from '../../lib/functions';
+import { UnstyledButton, Text } from '@mantine/core';
 
-export function GameTypeCard({
+export const GameTypeCard = ({
   settings,
   cardData: { title, value, Icon },
-  form,
-}: GameTypeCardProps) {
+  gameForm,
+}: GameTypeCardProps) => {
   const { classes } = styles();
-  const gameTypesSelected = form.values.gameTypes || null;
+  const gameTypesSelected = gameForm.values.gameTypes || null;
   const selected = gameTypesSelected && gameTypesSelected.includes(value);
 
   const handleSelection = () => {
@@ -27,11 +26,11 @@ export function GameTypeCard({
       const alreadyExists = gameTypesSelected && gameTypesSelected.indexOf(value) !== -1;
 
       // if already selected - unselect
-      if (alreadyExists) form.removeListItem('gameTypes', gameTypesSelected.indexOf(value));
+      if (alreadyExists) gameForm.removeListItem('gameTypes', gameTypesSelected.indexOf(value));
       // if not selected - select
-      else if (!form.values.gameTypes) form.setFieldValue('gameTypes', [value]);
-      else form.insertListItem('gameTypes', value);
-    } else form.setFieldValue('gameTypes', [value]);
+      else if (!gameForm.values.gameTypes) gameForm.setFieldValue('gameTypes', [value]);
+      else gameForm.insertListItem('gameTypes', value);
+    } else gameForm.setFieldValue('gameTypes', [value]);
   };
 
   return (
@@ -49,10 +48,9 @@ export function GameTypeCard({
       </Text>
     </UnstyledButton>
   );
-}
+};
 
-{
-  /* <Card
+/* <Card
 shadow="sm"
 p="lg"
 radius="md"
@@ -61,4 +59,5 @@ component="button"
 onClick={() => form.setFieldValue('gameType', [value])}
 style={{ cursor: 'pointer', color: textColor }}
 > */
-}
+
+export default GameTypeCard;

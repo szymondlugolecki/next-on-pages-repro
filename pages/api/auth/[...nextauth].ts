@@ -29,8 +29,6 @@ const auth = async (req: NextApiRequest, res: NextApiResponse) => {
     },
     callbacks: {
       async jwt({ token, user, isNewUser }) {
-        console.log('JWT', token, user, isNewUser);
-
         if (user) {
           token.user = user;
         }
