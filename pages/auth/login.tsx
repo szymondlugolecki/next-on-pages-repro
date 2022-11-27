@@ -1,10 +1,10 @@
-import { Button, Container, Divider, Group, Paper, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Container, Paper, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Loading from '../../components/Layout/Loading';
 
-import { At, BrandGoogle } from 'tabler-icons-react';
+import { At } from 'tabler-icons-react';
 
 import { useEffect } from 'react';
 import { formValidators } from '../../lib/edgeFunctions';
@@ -40,13 +40,13 @@ export default function Login() {
             <Text size='lg' weight={600} align='center'>
               Log in to Geopolis
             </Text>
-            <Group grow>
+            {/* <Group grow>
               <Button variant='outline' leftIcon={<BrandGoogle />} onClick={() => signIn('google')}>
                 with Google
               </Button>
             </Group>
 
-            <Divider label='or with an email' labelPosition='center' />
+            <Divider label='or with an email' labelPosition='center' /> */}
 
             <TextInput
               required

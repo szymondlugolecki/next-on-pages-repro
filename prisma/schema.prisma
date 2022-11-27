@@ -1,61 +1,66 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-  provider = "mongodb"
-  url      = env("DATABASE_URL")
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
-model Session {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-model Account {
-  id                 String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.String
-  access_token       String?  @db.String
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.String
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  accounts      Account[]
-  sessions      Session[]
-  nickname      String?   @unique
-  vip           Boolean   @default(false)
-  banned        Boolean   @default(false)
-  ducats        Int       @default(0)
-  nameChanges   Int       @default(1)
+  id          String        @id @default(uuid())
+  email       String        @unique
+  avatar      String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  nickname    String        @unique
+  vip         Boolean       @default(false)
+  banned      Boolean       @default(false)
+  ducats      Int           @default(0)
+  nameChanges Int           @default(1)
+  verifyID    String?       @unique
+  UserTokens  UserTokens[]
+  PlayerScore PlayerScore[]
 
-  @@unique([id, email, nickname])
+  @@unique([id, email, nickname, verifyID])
 }
 
-model VerificationToken {
-  identifier String   @id @default(auto()) @map("_id") @db.ObjectId
-  token      String   @unique
-  expires    DateTime
+// model VerificationToken {
+//   identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+//   token      String   @unique
+//   expires    DateTime
 
-  @@unique([identifier, token])
+//   @@unique([identifier, token])
+// }
+
+model UserTokens {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  token       String
+  family      String   @unique
+  browserInfo String? // Show the user logged devices 
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+}
+
+model Game {
+  id Int @id @default(autoincrement())
+
+  players   PlayerScore[]
+  createdAt DateTime      @default(now())
+}
+
+model PlayerScore {
+  id     String @id @default(uuid())
+  player User   @relation(fields: [userId], references: [id])
+  points Int
+  result Int
+  Game   Game?  @relation(fields: [gameId], references: [id])
+  gameId Int?
+  userId String
 }
