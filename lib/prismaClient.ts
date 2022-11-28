@@ -1,5 +1,7 @@
 import { PrismaClient } from '@prisma/client/edge';
 
+console.log('initializing prisma');
+
 declare global {
   var prisma: PrismaClient | undefined;
 }
