@@ -42,8 +42,8 @@ model UserTokens {
   userId String
 
   token       String
-  family      String   @unique
-  browserInfo String? // Show the user logged devices 
+  // family      String   @unique
+  browserInfo String
   expiresAt   DateTime
   createdAt   DateTime @default(now())
 }
