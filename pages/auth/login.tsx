@@ -1,6 +1,6 @@
 import { Button, Container, Paper, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { signIn, useSession } from 'next-auth/react';
+// import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import Loading from '../../components/Layout/Loading';
 
@@ -8,9 +8,11 @@ import { At } from 'tabler-icons-react';
 
 import { useEffect } from 'react';
 import { formValidators } from '../../lib/edgeFunctions';
+import { useAuth } from '../../lib/swrClient';
 
 export default function Login() {
   const { push } = useRouter();
+  const { useSession, signIn } = useAuth();
   const { status } = useSession();
 
   const form = useForm({
@@ -31,11 +33,7 @@ export default function Login() {
   return (
     <Container size='xs'>
       <Paper withBorder p='xl' radius='md'>
-        <form
-          onSubmit={form.onSubmit(async () =>
-            signIn('email', { email: form.values.email, callbackUrl: '/play' }),
-          )}
-        >
+        <form onSubmit={form.onSubmit(() => signIn(form.values.email))}>
           <Stack>
             <Text size='lg' weight={600} align='center'>
               Log in to Geopolis

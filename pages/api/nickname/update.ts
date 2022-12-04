@@ -1,4 +1,4 @@
-import { getToken } from 'next-auth/jwt';
+// import { getToken } from 'next-auth/jwt';
 import type { NextRequest } from 'next/server';
 import { handleError, sendError, sendSuccess } from '../../../lib/edgeFunctions';
 import client from '../../../lib/prismaClient';
@@ -13,7 +13,7 @@ export default async function handler(req: NextRequest) {
 
   try {
     const token = await getToken({ req });
-    if (!token || !token.email) return sendError({ message: 'Unauthorized', code: 401 });
+    if (!token || !token.email) return sendError({ message: 'Unauthorized', code: 403 });
 
     // Get user
     // Check how many nameChanges they have or whether they have VIP

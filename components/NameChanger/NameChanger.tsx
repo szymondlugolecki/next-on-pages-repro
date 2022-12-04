@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import httpClient, { handleAxiosError } from '../../lib/axiosClient';
+import { axiosInstance, axiosErrorHandler } from '../../lib/axiosClient';
 import { Group, Button, Stack, TextInput, Text } from '@mantine/core';
 import { showError, showSuccess } from '../../lib/functions';
 
@@ -7,7 +7,7 @@ import { Check, X } from 'tabler-icons-react';
 
 import type { UseFormReturnType } from '@mantine/form';
 import type { NicknameChangeForm } from '../../types/ComponentProps';
-import type { PrivateUser } from '../../types/API';
+import type { PrivateUser } from '../../types';
 
 export default function NameChanger({
   form,
@@ -46,7 +46,7 @@ export default function NameChanger({
   const changeNickname = async (name: string) => {
     if (!allowedToChange) return;
     try {
-      await httpClient.post('nickname/update', { nickname: name });
+      await axiosInstance.post('nickname/update', { nickname: name });
 
       // Add to unavailableList & remove from availableList
       addUnavailableName(name);
@@ -54,10 +54,10 @@ export default function NameChanger({
       form.setFieldValue('availableList', newList);
 
       showSuccess(`Nickname changed`);
-      await httpClient.get('auth/session?update');
+      await axiosInstance.get('auth/session?update');
       push('/play');
     } catch (error: any) {
-      const axiosError = handleAxiosError(error);
+      const axiosError = axiosErrorHandler(error);
       showError(axiosError);
     }
   };
@@ -67,7 +67,7 @@ export default function NameChanger({
     try {
       const {
         data: { data },
-      } = await httpClient.get<{
+      } = await axiosInstance.get<{
         success: true;
         data: {
           available: boolean;
@@ -80,7 +80,7 @@ export default function NameChanger({
       if (data.available === true) addAvailableName(name);
       else addUnavailableName(name);
     } catch (error) {
-      const axiosError = handleAxiosError(error);
+      const axiosError = axiosErrorHandler(error);
       showError(axiosError);
     }
   };
@@ -117,7 +117,7 @@ export default function NameChanger({
             loading={form.values.loading}
             disabled={
               !form.values.nickname.length ||
-              form.values.availableList.includes(form.values.nickname) ||
+              form.values.unavailableList.includes(form.values.nickname) ||
               !allowedToChange
             }
           >

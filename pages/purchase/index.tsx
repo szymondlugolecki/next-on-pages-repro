@@ -3,7 +3,6 @@
 // Components
 import type { BadgeVariant, DefaultMantineColor, MantineGradient } from '@mantine/core';
 import { Badge, Button, Container, Grid, Group, List, Paper, Text, Title } from '@mantine/core';
-import { useSession } from 'next-auth/react';
 import Loading from '../../components/Layout/Loading';
 // import { StoreProduct } from '../components/StoreProduct/StoreProduct';
 import Ducat from '../../components/Ducat';
@@ -16,9 +15,11 @@ import styles from './Purchase.styles';
 // Client-Side Constants & Functions
 import Link from 'next/link';
 import { ducatsShop } from '../../lib/constants';
+import { useAuth } from '../../lib/swrClient';
 
 export default function PurchasePage() {
   const { classes } = styles();
+  const { useSession } = useAuth();
   const { status } = useSession();
 
   if (status === 'loading') return <Loading />;

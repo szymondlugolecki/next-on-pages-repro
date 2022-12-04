@@ -6,12 +6,11 @@ const secretEncoded = new TextEncoder().encode(secret);
 
 export const jwtConfig = {
   alg: 'HS256',
+  secret: secretEncoded,
   accessTokenConfig: {
-    secret: secretEncoded,
     expirationTime: '2m',
   },
   refreshTokenConfig: {
-    secret: secretEncoded,
     expirationTime: '21d',
   },
   audience: 'geopolis.io',

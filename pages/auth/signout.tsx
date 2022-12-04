@@ -1,18 +1,20 @@
 import { Button, Container, Group, Paper, Title } from '@mantine/core';
-import { signOut, useSession } from 'next-auth/react';
+// import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import Loading from '../../components/Layout/Loading';
+import { useAuth } from '../../lib/swrClient';
 
 export default function Verify() {
   const { push } = useRouter();
+  const { useSession, signOut } = useAuth();
+  const { status } = useSession();
 
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      push('/home');
-    },
-  });
+  useEffect(() => {
+    if (status === 'unauthenticated' && push) push('/auth/login');
+  }, [status, push]);
+
   if (status === 'loading') return <Loading />;
 
   return (

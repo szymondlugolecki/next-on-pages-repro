@@ -3,17 +3,19 @@
 // Components
 import { Avatar, Badge, Container, Group, Stack, Text, Title } from '@mantine/core';
 import type { GetServerSideProps } from 'next';
-import { useSession } from 'next-auth/react';
+// import { useSession } from 'next-auth/react';
 import Loading from '../../../components/Layout/Loading';
 import { handlePrismaError, timestampFormat } from '../../../lib/edgeFunctions';
-import { PublicUser } from '../../../types/API';
+import { PublicUser } from '../../../types';
 import client from '../../../lib/prismaClient';
+import { useAuth } from '../../../lib/swrClient';
 
 // Types
 
 // Styles
 
 export default function ProfilePage({ user }: { user: PublicUser | null }) {
+  const { useSession } = useAuth();
   const { status } = useSession();
   if (status === 'loading') return <Loading />;
 
@@ -43,7 +45,7 @@ export default function ProfilePage({ user }: { user: PublicUser | null }) {
     <Container>
       <Group position='left' spacing='xl' align='flex-start' sx={() => ({ height: 170 })}>
         <Avatar
-          src={user.image}
+          src={user.avatar}
           size={170}
           radius='md'
           color='indigo'
@@ -56,7 +58,7 @@ export default function ProfilePage({ user }: { user: PublicUser | null }) {
             <Title order={1}>{user.nickname}</Title>
           </Stack>
           <Text mb='lg' size='md'>
-            Member since • {user.joined}
+            Member since • {timestampFormat(user.createdAt)}
           </Text>
         </Stack>
       </Group>
@@ -69,28 +71,27 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const props = { user: null };
 
   // Return if invalid nickname provided
-  if (!queryNickname || Array.isArray(queryNickname)) return { props };
+  if (!queryNickname || typeof queryNickname !== 'string') return { props };
 
   try {
-    // Database query
     const user = await client.user.findFirstOrThrow({
       where: {
         nickname: queryNickname,
       },
     });
-    console.log('user', user);
+    const { createdAt, banned, nickname, vip, avatar } = user;
 
-    const { createdAt, banned, nickname, vip, image } = user;
+    const publicUser: PublicUser = {
+      nickname,
+      avatar,
+      vip,
+      createdAt,
+      banned,
+    };
 
     return {
       props: {
-        user: {
-          joined: timestampFormat(createdAt.getTime()),
-          banned,
-          nickname,
-          vip,
-          image,
-        },
+        user: publicUser,
       },
     };
   } catch (error) {

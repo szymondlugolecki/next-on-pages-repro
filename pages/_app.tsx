@@ -2,7 +2,8 @@ import Head from 'next/head';
 
 import { AppShell, Container, MantineProvider, MantineThemeOverride } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
-import { SessionProvider } from 'next-auth/react';
+// import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from '../lib/swrClient';
 
 import type { AppProps } from 'next/app';
 import FooterLayout from '../components/Layout/Footer';
@@ -10,7 +11,7 @@ import HeaderLayout from '../components/Layout/Header';
 
 import RouterTransition from '../components/RouterTransition';
 
-import { Session } from 'next-auth';
+// import { Session } from 'next-auth';
 
 export const themeOverride: MantineThemeOverride = {
   colorScheme: 'dark',
@@ -31,10 +32,9 @@ export const themeOverride: MantineThemeOverride = {
   },
 };
 
-export default function App({
-  Component,
-  pageProps: { session, ...pageProps },
-}: AppProps & { pageProps: { session: Session | null } }) {
+// AppProps & { pageProps: { session: Session | null } }
+
+export default function App({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <>
       <Head>
@@ -44,7 +44,7 @@ export default function App({
         <link rel='icon' href='/favicon.svg' />
       </Head>
 
-      <SessionProvider session={session}>
+      <SessionProvider>
         <MantineProvider theme={themeOverride} withNormalizeCSS withGlobalStyles>
           <RouterTransition />
           <NotificationsProvider>

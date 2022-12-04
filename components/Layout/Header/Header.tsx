@@ -1,6 +1,5 @@
 import { Burger, Container, Group, Header, Paper, Transition } from '@mantine/core';
 import { useToggle } from '@mantine/hooks';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
@@ -11,14 +10,18 @@ import HeaderLinks from './HeaderLinks';
 import styles from './Header.styles';
 
 import { headerLinks } from '../../../lib/constants';
+import { useAuth } from '../../../lib/swrClient';
 
 export default function HeaderLayout() {
   const { classes } = styles();
   const { pathname } = useRouter();
   const initialURL = headerLinks.find((link) => link.url === pathname)?.url || headerLinks[0].url;
+  const { useSession } = useAuth();
   const { data: session, status } = useSession();
   const [opened, toggleOpened] = useToggle([false, true]);
   const [active, setActive] = useState(initialURL);
+
+  console.log('session', session, status);
 
   const headerLinksProps = {
     active,
@@ -33,7 +36,7 @@ export default function HeaderLayout() {
         <Globe />
         <Group spacing={5} className={classes.links}>
           <HeaderLinks {...{ ...headerLinksProps, shrink: false }} />
-          {session?.user && <UserMenu user={session.user} />}
+          {session && <UserMenu user={session.user} />}
         </Group>
 
         <Burger

@@ -1,12 +1,12 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  engineType = "dataproxy"
 }
 
 datasource db {
   provider             = "mysql"
   url                  = env("DATABASE_URL")
-  referentialIntegrity = "prisma"
+  relationMode         = "prisma"
 }
 
 model User {
@@ -41,11 +41,13 @@ model UserTokens {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
-  token       String
+  token       String @db.Text
   // family      String   @unique
   browserInfo String
   expiresAt   DateTime
   createdAt   DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Game {
@@ -63,4 +65,7 @@ model PlayerScore {
   Game   Game?  @relation(fields: [gameId], references: [id])
   gameId Int?
   userId String
+
+  @@index([userId])
+  @@index([gameId])
 }

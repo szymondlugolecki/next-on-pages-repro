@@ -1,5 +1,4 @@
 // Hooks
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 // Components
@@ -13,17 +12,19 @@ import { isPositiveInteger } from '../../../lib/edgeFunctions';
 import Link from 'next/link';
 import Ducat from '../../../components/Ducat';
 import { ducatsShop } from '../../../lib/constants';
+import { useAuth } from '../../../lib/swrClient';
+import { useEffect } from 'react';
 
 export default function DucatsPurchase() {
   const { push, query } = useRouter();
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      push('/auth/login');
-    },
-  });
-
+  const { useSession } = useAuth();
+  const { status } = useSession();
   const { productId } = query;
+
+  useEffect(() => {
+    if (status === 'unauthenticated' && push) push('/auth/login');
+  }, [status, push]);
+
   if (status === 'loading') return <Loading />;
   if (!productId || !isPositiveInteger(productId) || typeof productId !== 'string')
     return <NotFound />;

@@ -24,10 +24,10 @@ const withBundleAnalyzer = bundleFunc({
  **/
 
 const ContentSecurityPolicy = `
- default-src 'self' localhost:3000 localhost:8787;
- script-src 'self';
+ default-src 'self' localhost:3000 localhost:8787 http://localhost:3000;
+ script-src 'self' http://localhost:3000 localhost:3000;
  img-src 'self' lh3.googleusercontent.com countryflagsapi.com;
- style-src 'self' example.com;
+ style-src 'self' http://localhost:3000 localhost:3000;
  font-src 'self';  
  connect-src 'self' localhost:3000 localhost:8787
 `;
@@ -38,10 +38,10 @@ export default withBundleAnalyzer({
       {
         source: '/(.*)',
         headers: [
-          {
-            key: 'Content-Security-Policy',
-            value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
-          },
+          // {
+          //   key: 'Content-Security-Policy',
+          //   value: ContentSecurityPolicy.replace(/\s{2,}/g, ' ').trim(),
+          // },
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',

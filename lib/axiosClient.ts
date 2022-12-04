@@ -1,21 +1,84 @@
 import axios from 'axios';
-import { log } from 'loglevel';
+import { SuccessResponse } from '../types';
 
-const instance = axios.create({
+const NO_RETRY_HEADER = 'x-no-retry';
+
+const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_URL}/`,
   timeout: 10000,
-  //   headers: { 'X-Custom-Header': 'foobar' },
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-const handleAxiosError = (error: any) => {
-  log(error);
-  if (axios.isAxiosError(error)) {
-    const msg: string = error.response?.data?.message || error.message;
-    return msg;
-  } else {
-    return 'Unexpected error has occured';
-  }
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    const AT = localStorage.getItem('accessToken');
+    const accessToken = AT ? JSON.parse(AT) : null;
+
+    if (accessToken) {
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${accessToken}`,
+      };
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error: any) => {
+    if (
+      !axios.isCancel(error) &&
+      axios.isAxiosError(error) &&
+      error?.response?.status === 403 &&
+      error.config
+    ) {
+      try {
+        if (error.config.headers && error.config.headers[NO_RETRY_HEADER]) {
+          return await Promise.reject(error);
+        }
+        if (!error.config.headers)
+          error.config.headers = {
+            [NO_RETRY_HEADER]: 'true',
+          };
+        else error.config.headers[NO_RETRY_HEADER] = 'true';
+
+        const { data: tokenRefreshData } = await axiosInstance.post<
+          SuccessResponse<{ accessToken: string }>
+        >('auth/refresh');
+
+        const token = tokenRefreshData.data?.accessToken;
+
+        if (!token) {
+          return await Promise.reject(error);
+        }
+
+        error.config.headers.Authorization = token;
+
+        localStorage.setItem('accessToken', JSON.stringify(token));
+        console.log('Setting localstorage accessToken to', token);
+
+        return await axiosInstance(error.config);
+      } catch (e) {
+        return Promise.reject(error);
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+const axiosErrorHandler = (error: any) => {
+  let message;
+  if (axios.isAxiosError(error) && error.response) {
+    message = error.response.data.message;
+  } else message = String(error);
+  return message;
 };
 
-export default instance;
-export { handleAxiosError };
+export { axiosInstance, axiosErrorHandler };

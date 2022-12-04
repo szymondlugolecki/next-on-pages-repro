@@ -1,6 +1,19 @@
 import { Prisma } from '@prisma/client/edge';
 import log from 'loglevel';
 import { ErrorResponse, SuccessResponse } from '../types/API';
+import UAParser from 'ua-parser-js';
+import { PrivateUser, User } from '../types';
+
+export const privateUserParser = ({
+  email,
+  nickname,
+  avatar,
+  ducats,
+  createdAt,
+  vip,
+  banned,
+  nameChanges,
+}: User): PrivateUser => ({ email, nickname, avatar, ducats, createdAt, vip, banned, nameChanges });
 
 export function shuffle<T>(array: T[]): T[] {
   const tempArray = [...array];
@@ -54,17 +67,33 @@ export const sendError = ({ message, code = 400, error = true }: ErrorResponse) 
   new Response(JSON.stringify({ error, message } as ErrorResponse), {
     status: code,
     headers: {
-      'content-type': 'application/json',
+      'Content-Type': 'application/json',
     },
   });
 
-export const sendSuccess = ({ message, data, code = 200, success }: SuccessResponse) =>
+export const sendSuccess = <T>({ message, data, code = 200, success }: SuccessResponse<T>) =>
   new Response(JSON.stringify({ success, message, data } as SuccessResponse), {
     status: code,
     headers: {
-      'content-type': 'application/json',
+      'Content-Type': 'application/json',
     },
   });
+
+export const extractBrowserInfo = (userAgentHeader: string | null): string => {
+  // https://github.com/faisalman/ua-parser-js
+  if (userAgentHeader) {
+    const parser = new UAParser(userAgentHeader);
+    console.log('UA', 'Browser', parser.getBrowser(), 'OS', parser.getOS());
+    const browserInfo = [parser.getBrowser().name, parser.getOS().name]
+      .filter((el) => el)
+      .join('+');
+    console.log('UA', 'browserInfo', browserInfo);
+    return browserInfo;
+  } else return '';
+  // `${req.headers.get('user-agent') || req.ip} ${req.headers.get('accept-language')}`
+  //   .replace(/null/g, '')
+  //   .trim() || '';
+};
 
 export const handlePrismaError = (
   e: any,
@@ -96,8 +125,8 @@ export const handleError = (
   return sendError({ message: customError.message, code: customError.code });
 };
 
-export const timestampFormat = (ts: number) =>
-  new Intl.DateTimeFormat([], { dateStyle: 'long' }).format(new Date(ts)) || '-';
+export const timestampFormat = (date: Date) =>
+  new Intl.DateTimeFormat([], { dateStyle: 'long' }).format(date) || '-';
 
 export const isPositiveInteger = (str: any) => {
   if (typeof str !== 'string') {

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 
 // Components
 import { Group, HoverCard, Paper, Tabs, Text } from '@mantine/core';
-import { useSession } from 'next-auth/react';
 import GameHandler from '../../components/GameHandler';
 import Loading from '../../components/Layout/Loading';
 
@@ -14,9 +13,11 @@ import Loading from '../../components/Layout/Loading';
 import { availableGamemodes, gamemodes } from '../../lib/constants';
 import { capitalize } from '../../lib/functions';
 import { Gamemode } from '../../types/Game';
+import { useAuth } from '../../lib/swrClient';
 
 export default function PlayPage() {
   const { query } = useRouter();
+  const { useSession } = useAuth();
   const { status } = useSession();
 
   if (status === 'loading') return <Loading />;

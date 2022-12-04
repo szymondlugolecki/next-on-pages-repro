@@ -1,16 +1,18 @@
 import { Container, Paper, Title } from '@mantine/core';
-import { useSession } from 'next-auth/react';
+// import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import Loading from '../../components/Layout/Loading';
+import { useAuth } from '../../lib/swrClient';
 
 export default function Welcome() {
   const { push } = useRouter();
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      push('/auth/login');
-    },
-  });
+  const { useSession } = useAuth();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === 'unauthenticated' && push) push('/auth/login');
+  }, [status, push]);
 
   if (status === 'loading') return <Loading />;
 

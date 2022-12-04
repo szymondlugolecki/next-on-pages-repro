@@ -1,7 +1,5 @@
 // Hooks
 import { useForm } from '@mantine/form';
-import { getToken } from 'next-auth/jwt';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 // Components
@@ -9,13 +7,12 @@ import { Avatar, Divider, Group, Paper, Title, Text } from '@mantine/core';
 import Loading from '../../components/Layout/Loading';
 
 // Types
-import type { GetServerSideProps } from 'next';
-import type { PrivateUser } from '../../types/API';
 import type { NicknameChangeForm } from '../../types/ComponentProps';
 
-import { formValidators, handlePrismaError, timestampFormat } from '../../lib/edgeFunctions';
-import client from '../../lib/prismaClient';
+import { formValidators } from '../../lib/edgeFunctions';
 import NameChanger from '../../components/NameChanger';
+import { useAuth } from '../../lib/swrClient';
+import { useEffect } from 'react';
 
 // Styles
 
@@ -27,22 +24,17 @@ const SettingsGroup = ({ children }: { children: JSX.Element[] | JSX.Element }) 
 );
 const SettingsSectionTitle = ({ title }: { title: string }) => <Title order={3}>{title}</Title>;
 
-export default function SettingsPage({ user }: { user: PrivateUser }) {
+export default function SettingsPage() {
   const { push } = useRouter();
-
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      push('/auth/login');
-    },
-  });
+  const { useSession } = useAuth();
+  const { status, data: sessionData } = useSession();
 
   const form = useForm<NicknameChangeForm>({
     initialValues: {
-      nickname: user.nickname ?? '',
+      nickname: sessionData?.user.nickname || '',
       available: false,
       availableList: [],
-      unavailableList: user.nickname ? [user.nickname] : [],
+      unavailableList: sessionData?.user ? [sessionData?.user.nickname] : [],
       loading: false,
     },
     validate: {
@@ -50,27 +42,43 @@ export default function SettingsPage({ user }: { user: PrivateUser }) {
     },
   });
 
-  if (status === 'loading') return <Loading />;
+  useEffect(() => {
+    console.log('status', status);
+    if (status === 'unauthenticated' && push) push('/auth/login');
+  }, [status, push]);
+
+  useEffect(() => {
+    if (sessionData?.user.nickname) {
+      if (!form.values.nickname) {
+        form.setFieldValue('nickname', sessionData.user.nickname);
+      }
+      if (!form.values.unavailableList.includes(form.values.nickname)) {
+        form.insertListItem('unavailableList', sessionData.user.nickname);
+      }
+    }
+  }, [sessionData, form]);
+
+  if (status !== 'authenticated') return <Loading />;
 
   return (
     <Paper withBorder p='md'>
       <SettingsGroup>
         <SettingsSectionTitle title='Avatar' />
-        <Avatar src={user.image} alt='Your profile picture' size={200} radius='xl' />
-      </SettingsGroup>
-
-      <SettingsDivider />
-
-      <SettingsGroup>
-        <SettingsSectionTitle title='Nickname' />
-        <NameChanger form={form} user={user} />
+        <Avatar src={sessionData.user.avatar} alt='Your profile picture' size={200} radius='xl' />
       </SettingsGroup>
 
       <SettingsDivider />
 
       <SettingsGroup>
         <SettingsSectionTitle title='Name Changes' />
-        <Text>{user.nameChanges}</Text>
+        <Text>{sessionData.user.nameChanges}</Text>
+      </SettingsGroup>
+
+      <SettingsDivider />
+
+      <SettingsGroup>
+        <SettingsSectionTitle title='Nickname' />
+        <NameChanger form={form} user={sessionData.user} />
       </SettingsGroup>
 
       <SettingsDivider />
@@ -78,38 +86,55 @@ export default function SettingsPage({ user }: { user: PrivateUser }) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  // PrivateUser
-  const token = await getToken(ctx);
-  if (!token) throw new Error('Authorization token not found');
+// export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+//   const tokenHeader = req.headers.authorization;
 
-  // Check the database
-  try {
-    const user = await client.user.findFirstOrThrow({
-      where: {
-        email: token.user.email,
-      },
-    });
+//   if (!tokenHeader) {
+//     res.statusCode = 401;
+//     throw new Error('Authorization token not found');
+//   }
 
-    console.log('user', user);
+//   const tokenSplit = tokenHeader.split(' ');
+//   const token = tokenSplit[1];
+//   if (!token) {
+//     res.statusCode = 401;
+//     throw new Error('Invalid authorization token');
+//   }
 
-    const { createdAt, banned, nickname, vip, email, nameChanges, image } = user;
+//   const { payload } = await verifyToken(token);
 
-    return {
-      props: {
-        user: {
-          joined: timestampFormat(createdAt.getTime()),
-          banned,
-          nickname,
-          vip,
-          email,
-          nameChanges,
-          image,
-        },
-      },
-    };
-  } catch (error) {
-    handlePrismaError(error);
-    throw new Error('Unexpected error');
-  }
-};
+//   const { user } = payload as JWTPayload & { user: User };
+
+//   // Check the database
+//   try {
+//     const userQuery = await client.user.findFirstOrThrow({
+//       where: {
+//         email: user.email,
+//       },
+//     });
+
+//     console.log('userQuery', userQuery);
+
+//     const { createdAt, banned, nickname, vip, email, nameChanges, avatar } = userQuery;
+
+//     return {
+//       props: {
+//         user: {
+//           createdAt,
+//           banned,
+//           nickname,
+//           vip,
+//           email,
+//           nameChanges,
+//           avatar,
+//         },
+//       },
+//     };
+//   } catch (error: any) {
+//     if (error.code === 'ERR_JWT_EXPIRED') {
+//       throw new Error('Authorization token expired');
+//     }
+//     handlePrismaError(error);
+//     throw new Error('Unexpected error');
+//   }
+// };
