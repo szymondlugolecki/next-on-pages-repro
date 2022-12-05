@@ -12,22 +12,22 @@ const axiosInstance = axios.create({
   },
 });
 
-axiosInstance.interceptors.request.use(
-  async (config) => {
-    const AT = localStorage.getItem('accessToken');
-    const accessToken = AT ? JSON.parse(AT) : null;
+// axiosInstance.interceptors.request.use(
+//   async (config) => {
+//     const AT = localStorage.getItem('refreshToken');
+//     const accessToken = AT ? JSON.parse(AT) : null;
 
-    if (accessToken) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${accessToken}`,
-      };
-    }
+//     if (accessToken) {
+//       config.headers = {
+//         ...config.headers,
+//         Authorization: `Bearer ${accessToken}`,
+//       };
+//     }
 
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+//     return config;
+//   },
+//   (error) => Promise.reject(error),
+// );
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -49,10 +49,10 @@ axiosInstance.interceptors.response.use(
         else error.config.headers[NO_RETRY_HEADER] = 'true';
 
         const { data: tokenRefreshData } = await axiosInstance.post<
-          SuccessResponse<{ accessToken: string }>
+          SuccessResponse<{ refreshToken: string }>
         >('auth/refresh');
 
-        const token = tokenRefreshData.data?.accessToken;
+        const token = tokenRefreshData.data?.refreshToken;
 
         if (!token) {
           return await Promise.reject(error);
@@ -60,8 +60,8 @@ axiosInstance.interceptors.response.use(
 
         error.config.headers.Authorization = token;
 
-        localStorage.setItem('accessToken', JSON.stringify(token));
-        console.log('Setting localstorage accessToken to', token);
+        localStorage.setItem('refreshToken', JSON.stringify(token));
+        console.log('Setting localStorage refreshToken to', token);
 
         return await axiosInstance(error.config);
       } catch (e) {
