@@ -1,5 +1,5 @@
 import { SignJWT } from 'jose';
-import { jwtConfig } from './constants';
+import { aTCookie, aTMaxAge, jwtConfig } from './constants';
 import type { User } from '../../types';
 
 const { refreshTokenConfig, accessTokenConfig, alg, audience, issuer, secret } = jwtConfig;
@@ -24,4 +24,9 @@ const createAccessToken = (payload: { browserInfo?: string; user: User }) =>
     .setExpirationTime(accessTokenConfig.expirationTime)
     .sign(secret);
 
-export { createRefreshToken, createAccessToken };
+const createATCookie = (accessToken: string) =>
+  `${aTCookie}=${accessToken}; Max-Age=${aTMaxAge}; HttpOnly;${
+    process.env.NODE_ENV === 'production' ? 'Secure;' : ''
+  } SameSite=Lax; Path=/`;
+
+export { createRefreshToken, createAccessToken, createATCookie };

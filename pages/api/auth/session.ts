@@ -4,6 +4,7 @@ import verifyToken from '../../../lib/server/verifyToken';
 import client from '../../../lib/prismaClient';
 import type { Session, User } from '../../../types';
 import { JWTPayload } from 'jose';
+import { aTCookie } from '../../../lib/server/constants';
 
 // import { Session } from '../../../types';
 
@@ -15,23 +16,21 @@ export default async function handler(req: NextRequest) {
   if (req.method !== 'GET') return sendError({ message: 'Only GET method is allowed', code: 405 });
 
   // Check if Authorization header is included
-  const accessToken = req.headers.get('Authorization');
-  const refreshToken = req.cookies.get('refresh-token') || null;
-  if (!accessToken && refreshToken) return sendError({ message: 'Forbidden', code: 403 });
-  else if (!accessToken) return sendError({ message: 'Unauthorized', code: 401 });
-  const tokenSplit = accessToken.split(' ');
+  // const refreshToken = req.headers.get('Authorization');
+  const accessTokenCookie = req.cookies.get(aTCookie) || null;
+  if (!accessTokenCookie) return sendError({ message: 'Unauthorized', code: 401 });
+
+  const accessTokenCookieSplit = accessTokenCookie.split(' ');
 
   // Check if its correct
-  const justToken = tokenSplit[1];
-  if (!justToken || justToken.length < 50)
-    return sendError({ message: 'Invalid token', code: 403 });
+  const accessToken = accessTokenCookieSplit[1];
+  if (!accessToken) return sendError({ message: 'Invalid token', code: 403 });
 
   try {
     // Verify the token, respond with the subject
-    const { payload } = await verifyToken(justToken);
+    const { payload } = await verifyToken(accessToken);
     const { exp } = payload;
-    const expiresIn = (exp || 0) - Date.now() / 1000;
-    console.log('Session', 'Expires in', expiresIn, 'seconds');
+    console.log('Session', 'Expires in', (exp || 0) - Date.now() / 1000, 'seconds');
 
     const { user } = payload as JWTPayload & { user: User };
 
@@ -51,10 +50,12 @@ export default async function handler(req: NextRequest) {
       data: { user: privateUser, expires: exp },
     });
   } catch (error: any) {
-    console.log(Object.keys(error));
     console.error(error);
     if (error.code === 'ERR_JWT_EXPIRED') {
       return sendError({ message: 'Authorization token expired', code: 403 });
+    }
+    if (error.code.startsWith('ERR_JWT')) {
+      return sendError({ message: 'Invalid authorization token', code: 403 });
     }
     return handleError(error, {
       message: 'Unexpected error. Try again later...',

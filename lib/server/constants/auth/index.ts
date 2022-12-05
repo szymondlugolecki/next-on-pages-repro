@@ -4,6 +4,9 @@ if (!secret) throw new Error('No Auth secret was found');
 
 const secretEncoded = new TextEncoder().encode(secret);
 
+// Access Token Cookie Max-Age
+export const aTMaxAge = 1000 * 60 * 2; // 2 minutes
+
 export const jwtConfig = {
   alg: 'HS256',
   secret: secretEncoded,
@@ -16,3 +19,5 @@ export const jwtConfig = {
   audience: 'geopolis.io',
   issuer: 'geopolis-workers',
 };
+
+export const aTCookie = 'access-token';

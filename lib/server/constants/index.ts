@@ -1,2 +1,2 @@
-export { jwtConfig } from './jwt';
+export { jwtConfig, aTCookie, aTMaxAge } from './auth';
 export { purchaseDucats } from './purchase';
