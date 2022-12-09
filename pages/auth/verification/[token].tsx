@@ -1,9 +1,14 @@
 import { Container, Paper, Title, Stack } from '@mantine/core';
 // import { useVerification } from '../../../lib/swrClient';
 import type { GetServerSideProps } from 'next';
+import { useEffect } from 'react';
 import { extractBrowserInfo } from '../../../lib/edgeFunctions';
 import client from '../../../lib/prismaClient';
-import { createAccessToken, createRefreshToken } from '../../../lib/server/createToken';
+import {
+  createAccessToken,
+  createATCookie,
+  createRefreshToken,
+} from '../../../lib/server/createToken';
 
 // import { useAuth } from '../../../lib/swrClient';
 
@@ -30,13 +35,13 @@ const ErrorComponent = ({ error }: { error: string }) => {
 };
 
 const DisplayState = ({
-  accessToken,
+  refreshToken,
   error,
 }: {
-  accessToken: string | null;
+  refreshToken: string | null;
   error: string | null;
 }) => {
-  const isVerified = Boolean(accessToken);
+  const isVerified = Boolean(refreshToken);
 
   if (error) return <ErrorComponent error={error} />;
   if (isVerified) return <SuccessComponent />;
@@ -88,20 +93,17 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query }
     data: userTokensData,
   });
 
-  const refreshTokenCookie: string = `refresh-token=${refreshToken}; Max-Age=${threeWeeks}; HttpOnly;${
-    process.env.NODE_ENV === 'production' ? 'Secure;' : ''
-  } SameSite=Lax; Path=/`;
-
   const accessToken = await createAccessToken({ browserInfo, user });
+  const accessTokenCookie = createATCookie(accessToken);
 
-  res.setHeader('Set-Cookie', refreshTokenCookie);
+  res.setHeader('Set-Cookie', accessTokenCookie);
 
   return {
     props: {
       runtime: process.env.NEXT_RUNTIME,
       success: true,
       error: '',
-      accessToken,
+      refreshToken,
     },
   };
 };
@@ -109,14 +111,18 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res, query }
 //
 const Verifying = ({
   success,
-  accessToken,
+  refreshToken,
   error,
 }: {
   success: boolean;
-  accessToken?: string;
+  refreshToken?: string;
   error?: string;
 }) => {
   console.log('ssr success', success);
+
+  useEffect(() => {
+    if (refreshToken) localStorage.setItem('refreshToken', JSON.stringify(refreshToken));
+  }, [refreshToken]);
 
   return (
     <Container size='xs'>
@@ -136,7 +142,7 @@ const Verifying = ({
             textAlign: 'left',
           }}
         >
-          <DisplayState accessToken={accessToken ?? null} error={error ?? null} />
+          <DisplayState refreshToken={refreshToken ?? null} error={error ?? null} />
         </div>
       </Paper>
     </Container>

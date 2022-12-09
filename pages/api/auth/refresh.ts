@@ -19,21 +19,18 @@ export default async function handler(req: NextRequest) {
   if (req.method !== 'POST')
     return sendError({ message: 'Only POST method is allowed', code: 405 });
 
-  console.log('api/auth/refresh');
-
   const rTHeader = req.headers.get('authorization');
   if (!rTHeader) return sendError({ message: 'Unauthorized', code: 401 });
 
   const rtHeaderSplit = rTHeader.split(' ');
   const refreshToken = rtHeaderSplit[1];
 
-  if (!refreshToken) return sendError({ message: 'Invalid token', code: 403 });
+  if (!refreshToken || refreshToken == 'null')
+    return sendError({ message: 'Invalid refresh token', code: 401 });
 
   try {
     // Verify the token, respond with the subject
     const { payload } = await verifyToken(refreshToken);
-    const { exp } = payload;
-    console.log('Refresh', 'Expires in', (exp || 0) - Date.now() / 1000, 'seconds');
 
     const { userId } = payload as JWTPayload & { user: string };
     if (!userId) return sendError({ message: 'Token error', code: 500 });
@@ -65,6 +62,9 @@ export default async function handler(req: NextRequest) {
   } catch (error: any) {
     if (error.code === 'ERR_JWT_EXPIRED') {
       return sendError({ message: 'Authorization token expired', code: 401 });
+    }
+    if (error.code.startsWith('ERR_JWT')) {
+      return sendError({ message: 'Invalid refresh token', code: 401 });
     }
     return handleError(error, {
       message: 'Unexpected error. Try again later...',

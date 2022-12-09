@@ -2,7 +2,11 @@
 import type { NextRequest } from 'next/server';
 import { extractBrowserInfo, handleError, sendError } from '../../../lib/edgeFunctions';
 import client from '../../../lib/prismaClient';
-import { createRefreshToken, createAccessToken } from '../../../lib/server/createToken';
+import {
+  createRefreshToken,
+  createAccessToken,
+  createATCookie,
+} from '../../../lib/server/createToken';
 import { SuccessResponse } from '../../../types/API';
 
 export const config = {
@@ -56,21 +60,18 @@ export default async function handler(req: NextRequest) {
       data: userTokensData,
     });
 
-    const refreshTokenCookie: string = `refresh-token=${refreshToken}; Max-Age=${threeWeeks}; HttpOnly;${
-      process.env.NODE_ENV === 'production' ? 'Secure;' : ''
-    } SameSite=Lax; Path=/`;
-
     const accessToken = await createAccessToken({ browserInfo, user });
+    const accessTokenCookie = createATCookie(accessToken);
 
     return new Response(
       JSON.stringify({
         message: 'User verified',
-        data: { accessToken },
+        data: { refreshToken },
         success: true,
       } as SuccessResponse),
       {
         headers: {
-          'Set-Cookie': refreshTokenCookie,
+          'Set-Cookie': accessTokenCookie,
           'content-type': 'application/json',
         },
         status: 200,

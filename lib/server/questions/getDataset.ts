@@ -1,5 +1,5 @@
 import CountriesData from 'world-countries';
-import countriesWithTopology from '../../public/countriesWithTopology.json';
+import countriesWithTopology from '../../../public/countriesWithTopology.json';
 import type {
   Dependence,
   ShrinkedCountry,
@@ -7,7 +7,7 @@ import type {
   Region,
   GameType,
   GameReadyCountry,
-} from '../../types/Game';
+} from '../../../types/Game';
 
 const countries: ShrinkedCountry[] = CountriesData.map(
   ({ name, independent, capital, region, subregion, flag, cca2 }): ShrinkedCountry => ({

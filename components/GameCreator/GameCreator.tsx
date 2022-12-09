@@ -17,7 +17,7 @@ import type { GameCreationForm, Gamemode, Question } from '../../types/Game';
 import { gameModeCardData, gamemodesSettings } from '../../lib/constants';
 
 import { showError, showSuccess } from '../../lib/functions';
-import httpClient from '../../lib/axiosClient';
+import { axiosInstance } from '../../lib/axiosClient';
 import { useState } from 'react';
 
 const url = `${process.env.NEXT_PUBLIC_API_URL}/game/create`;
@@ -44,7 +44,7 @@ const GameCreator = ({
       const { dependence, gameTypes, regions } = gameForm.values;
       const {
         data: { data },
-      } = await httpClient.post<GameCreateResponse>(url, {
+      } = await axiosInstance.post<GameCreateResponse>(url, {
         ...{ dependence, gameTypes, regions },
         gamemode,
       });
@@ -57,6 +57,7 @@ const GameCreator = ({
         answers,
         questions,
         gameOn: true,
+        gameStarted: Date.now(),
       });
 
       showSuccess('Successfully created a game');

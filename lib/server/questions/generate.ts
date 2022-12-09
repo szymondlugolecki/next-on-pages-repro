@@ -5,11 +5,11 @@ import {
   GameType,
   Region,
   ShrinkedCountry,
-} from '../../types/Game';
-import { challengeQuestionLimit, shareAnswersGamemodes } from '../constants';
+} from '../../../types/Game';
+import { challengeQuestionLimit, shareAnswersGamemodes } from '../../constants';
 import { getDatasets } from './getDataset';
 
-import { randomElement } from '../edgeFunctions';
+import { randomElement } from '../../edgeFunctions';
 import generateOne from './generateOne';
 
 const generate = (

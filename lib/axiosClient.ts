@@ -48,9 +48,12 @@ axiosInstance.interceptors.response.use(
           };
         else error.config.headers[NO_RETRY_HEADER] = 'true';
 
+        const oldRT = localStorage.getItem('refreshToken');
+        const oldAccessToken = oldRT ? JSON.parse(oldRT) : null;
+
         const { data: tokenRefreshData } = await axiosInstance.post<
           SuccessResponse<{ refreshToken: string }>
-        >('auth/refresh');
+        >('auth/refresh', null, { headers: { Authorization: `Bearer ${oldAccessToken}` } });
 
         const token = tokenRefreshData.data?.refreshToken;
 
@@ -61,7 +64,6 @@ axiosInstance.interceptors.response.use(
         error.config.headers.Authorization = token;
 
         localStorage.setItem('refreshToken', JSON.stringify(token));
-        console.log('Setting localStorage refreshToken to', token);
 
         return await axiosInstance(error.config);
       } catch (e) {

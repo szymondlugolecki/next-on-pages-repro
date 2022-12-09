@@ -50,10 +50,15 @@ model UserTokens {
   @@index([userId])
 }
 
+// model Question {
+
+// }
+
 model Game {
   id Int @id @default(autoincrement())
 
   players   PlayerScore[]
+  // questions 
   createdAt DateTime      @default(now())
 }
 

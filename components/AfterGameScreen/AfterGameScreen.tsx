@@ -9,26 +9,24 @@ import type { GameCreationForm } from '../../types/Game';
 
 // Styles
 import styles from './AfterGameScreen.styles';
+import { gameDataToStats } from '../../lib/client/gameStats';
 
 // Client-Side Constants & Functions
 
-export function AfterGameScreen({
-  data,
-  gameForm,
-}: {
-  data: {
-    title: string;
-    stats: string;
-    description: string;
-  }[];
-  gameForm: UseFormReturnType<GameCreationForm>;
-}) {
+export function AfterGameScreen({ gameForm }: { gameForm: UseFormReturnType<GameCreationForm> }) {
+  const correctAnswers = gameForm.values.questions.map((c) => c.correctAI || 1);
+  const allStats = gameDataToStats({
+    gameForm,
+    correctAnswers,
+  });
+
+  console.log(allStats);
   const { classes } = styles();
-  const stats = data.map((stat) => (
-    <div key={stat.title} className={classes.stat}>
-      <Text className={classes.count}>{stat.stats}</Text>
-      <Text className={classes.title}>{stat.title}</Text>
-      <Text className={classes.description}>{stat.description}</Text>
+  const statsElement = allStats.map((statistic) => (
+    <div key={statistic.name} className={classes.stat}>
+      <Text className={classes.count}>{statistic.value}</Text>
+      <Text className={classes.title}>{statistic.name}</Text>
+      <Text className={classes.description}>{statistic.description}</Text>
     </div>
   ));
 
@@ -38,7 +36,7 @@ export function AfterGameScreen({
         Congratulations
       </Text>
 
-      <div className={classes.statsContainer}>{stats}</div>
+      <div className={classes.statsContainer}>{statsElement}</div>
 
       <Box>
         <Button onClick={() => gameForm.reset()}>Continue</Button>

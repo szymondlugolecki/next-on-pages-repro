@@ -1,5 +1,5 @@
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Components
 import { Button, Container, Divider, Group, Modal } from '@mantine/core';
@@ -7,7 +7,6 @@ import Answers from '../Answers';
 import { Hint } from '../Hint/Hint';
 
 // Types
-import { gameDataToStats } from '../../lib/functions';
 import type { GameCreationForm, Gamemode } from '../../types/Game';
 import { AfterGameScreen } from '../AfterGameScreen/AfterGameScreen';
 
@@ -17,6 +16,7 @@ import { AfterGameScreen } from '../AfterGameScreen/AfterGameScreen';
 // Client-Side Constants & Functions
 import { gameTypesX, shareAnswersGamemodes } from '../../lib/constants';
 import { UseFormReturnType } from '@mantine/form';
+// import { axiosInstance } from '../../lib/axiosClient';
 
 const timeout = {
   capitalCities: 720,
@@ -42,14 +42,22 @@ const Quiz = ({
   };
 
   const q = gameForm.values.questions[currentQuestionIndex];
-  const gameTypeX = gameTypesX.filter((gt) => gt.name === q.gameType)[0];
+
+  useEffect(() => {
+    // async function fetchCorrectAnswers() {
+    //   const { data } = await axiosInstance.get(`/game/answers/16054435`)
+    // }
+    if (!q && gameForm.values.questions.length === currentQuestionIndex) {
+      //
+    }
+  }, [gameForm.values.currentQuestion, gameForm.values.questions.length, q, currentQuestionIndex]);
 
   // * Question is undefined and current question index is higher than number of questions
   if (!q && gameForm.values.questions.length === currentQuestionIndex) {
-    const correctAnswers = gameForm.values.questions.map((c) => c.correctAI || 1);
-    const stats = gameDataToStats(gameForm.values.playerAnswers, correctAnswers);
-    return <AfterGameScreen data={stats} gameForm={gameForm} />;
+    return <AfterGameScreen gameForm={gameForm} />;
   }
+
+  const gameTypeX = gameTypesX.filter((gt) => gt.name === q.gameType)[0];
 
   const playerAnswer: number | undefined =
     gameForm.values.playerAnswers[currentQuestionIndex]?.index;

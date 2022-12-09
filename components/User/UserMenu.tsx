@@ -20,7 +20,7 @@ export function UserMenu({ user }: { user: PrivateUser }) {
         <Menu.Item
           component='button'
           icon={<UserIcon size={14} />}
-          onClick={() => push(`/profile/me`)}
+          onClick={() => push(`/profile/${user.nickname}`)}
         >
           Profile
         </Menu.Item>

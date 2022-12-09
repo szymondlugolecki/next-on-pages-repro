@@ -21,8 +21,6 @@ export default function HeaderLayout() {
   const [opened, toggleOpened] = useToggle([false, true]);
   const [active, setActive] = useState(initialURL);
 
-  console.log('session', session, status);
-
   const headerLinksProps = {
     active,
     setActive,

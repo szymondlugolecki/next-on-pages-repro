@@ -46,6 +46,7 @@ export interface GameCreationForm {
   playerAnswers: { index: number; time: number }[];
   answers: number[];
   currentQuestion: number;
+  gameStarted: number | null;
 }
 
 export interface ShrinkedCountry {

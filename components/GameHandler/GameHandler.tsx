@@ -28,6 +28,7 @@ const GameHandler = ({ gamemode }: { gamemode: Gamemode }) => {
       playerAnswers: [],
       answers: [],
       currentQuestion: 0,
+      gameStarted: null,
     },
     validate: validateGameCreationForm,
   });

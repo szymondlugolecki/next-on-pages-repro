@@ -9,9 +9,11 @@ import {
   gamemodes,
   gameTypesList,
 } from '../../../lib/constants';
-import generateQuestions from '../../../lib/questions/generate';
-import { sendError, sendSuccess } from '../../../lib/edgeFunctions';
+import generateQuestions from '../../../lib/server/questions/generate';
+import { handleError, sendError, sendSuccess } from '../../../lib/edgeFunctions';
 import type { GameCreateBody } from '../../../types/Game';
+import verifyToken from '../../../lib/server/verifyToken';
+import { aTCookie } from '../../../lib/server/constants';
 
 const isValid = (
   gamemode: Gamemode,
@@ -67,6 +69,24 @@ const isValid = (
 const gameCreate = async (req: NextRequest) => {
   // Continue only if its a POST request
   if (req.method !== 'POST') return sendError({ message: 'Only POST method is allowed' });
+
+  const accessToken = req.cookies.get(aTCookie) || null;
+  if (!accessToken) return sendError({ message: 'Unauthorized', code: 401 });
+
+  try {
+    await verifyToken(accessToken);
+  } catch (error: any) {
+    if (error.code === 'ERR_JWT_EXPIRED') {
+      return sendError({ message: 'Authorization token expired', code: 403 });
+    }
+    if (error.code.startsWith('ERR_JWT')) {
+      return sendError({ message: 'Invalid authorization token', code: 403 });
+    }
+    return handleError(error, {
+      message: 'Unexpected error. Try again later...',
+      code: 500,
+    });
+  }
 
   try {
     const data: GameCreateBody = await req.json();

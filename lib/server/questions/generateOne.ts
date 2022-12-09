@@ -1,5 +1,5 @@
-import { shuffle } from '../edgeFunctions';
-import type { GameType, Question, ShrinkedCountry } from '../../types/Game';
+import { shuffle } from '../../edgeFunctions';
+import type { GameType, Question, ShrinkedCountry } from '../../../types/Game';
 
 // gameType: GameType;
 // hint: string;

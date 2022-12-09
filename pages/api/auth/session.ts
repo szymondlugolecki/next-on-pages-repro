@@ -17,20 +17,13 @@ export default async function handler(req: NextRequest) {
 
   // Check if Authorization header is included
   // const refreshToken = req.headers.get('Authorization');
-  const accessTokenCookie = req.cookies.get(aTCookie) || null;
-  if (!accessTokenCookie) return sendError({ message: 'Unauthorized', code: 401 });
-
-  const accessTokenCookieSplit = accessTokenCookie.split(' ');
-
-  // Check if its correct
-  const accessToken = accessTokenCookieSplit[1];
-  if (!accessToken) return sendError({ message: 'Invalid token', code: 403 });
+  const accessToken = req.cookies.get(aTCookie) || null;
+  if (!accessToken) return sendError({ message: 'Unauthorized', code: 401 });
 
   try {
     // Verify the token, respond with the subject
     const { payload } = await verifyToken(accessToken);
     const { exp } = payload;
-    console.log('Session', 'Expires in', (exp || 0) - Date.now() / 1000, 'seconds');
 
     const { user } = payload as JWTPayload & { user: User };
 
