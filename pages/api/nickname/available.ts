@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { handleError, sendError, sendSuccess } from '../../../lib/edgeFunctions';
 import client from '../../../lib/prismaClient';
+import { aTCookie } from '../../../lib/server/constants';
 
 export const config = {
   runtime: 'experimental-edge',
@@ -8,6 +9,9 @@ export const config = {
 
 export default async function handler(req: NextRequest) {
   if (req.method !== 'GET') return sendError({ message: 'Only GET method is allowed', code: 405 });
+
+  const accessToken = req.cookies.get(aTCookie) || null;
+  if (!accessToken) return sendError({ message: 'Unauthorized', code: 401 });
 
   const { searchParams } = new URL(req.url);
   const nickname = searchParams.get('nickname');

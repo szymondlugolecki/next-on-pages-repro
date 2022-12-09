@@ -32,8 +32,6 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     revalidateOnFocus: false,
   });
 
-  console.log('Session', data);
-
   const signIn = async (email: string) => {
     try {
       await axiosInstance.post('auth/signin', { email });

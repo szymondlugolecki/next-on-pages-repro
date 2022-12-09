@@ -10,7 +10,7 @@ import Ducat from '../../components/Ducat';
 // Types
 
 // Styles
-import styles from './Purchase.styles';
+import styles from '../../pagesStyles/Purchase.styles';
 
 // Client-Side Constants & Functions
 import Link from 'next/link';

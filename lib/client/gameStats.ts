@@ -1,7 +1,7 @@
 import { UseFormReturnType } from '@mantine/form';
 import { GameCreationForm } from '../../types/Game';
 
-const parseValid = <T>(variable: T) => (variable || variable === 0 ? variable : '?');
+const parseValid = <T>(variable: T): T | string => variable ?? '?';
 
 // const fixNumber = (num: number) => parseFloat(num.toFixed(2));
 
