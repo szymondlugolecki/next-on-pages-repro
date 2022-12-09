@@ -16,7 +16,8 @@
     "eslint:fix": "eslint --fix \"**/*.+(js|jsx|ts|tsx)\"",
     "prettier": "prettier --check \"**/*.+(js|jsx|ts|tsx|json|yml|yaml|md|css)\"",
     "prettier:fix": "prettier --write \"**/*.+(js|jsx|ts|tsx|json|yml|yaml|md|css)\"",
-    "test": "npm run prettier:check && npm run lint && npm run typecheck && npm run jest"
+    "test": "npm run prettier:check && npm run lint && npm run typecheck && npm run jest",
+    "pagesbuild": "npx prisma generate --data-proxy & npx @cloudflare/next-on-pages --experimental-minify"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.216.0",
