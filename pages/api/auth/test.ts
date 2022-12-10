@@ -1,6 +1,6 @@
 // import { User } from '@prisma/client';
 import type { NextRequest } from 'next/server';
-import { ErrorResponse } from '../../../types';
+import { ErrorResponse } from '../../../types/API';
 
 export const config = {
   runtime: 'experimental-edge',
