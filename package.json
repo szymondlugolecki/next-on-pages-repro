@@ -51,7 +51,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
-    "@cloudflare/next-on-pages": "^0.1.0",
+    "@cloudflare/next-on-pages": "^0.2.0",
     "@next/eslint-plugin-next": "^12.1.4",
     "@testing-library/dom": "^8.12.0",
     "@testing-library/jest-dom": "^5.16.3",
@@ -81,6 +81,6 @@
     "prisma": "^4.7.1",
     "ts-jest": "^27.1.4",
     "typescript": "4.6.3",
-    "vercel": "^28.5.6"
+    "vercel": "^28.8.0"
   }
 }
