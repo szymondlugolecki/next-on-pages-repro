@@ -8,6 +8,6 @@ Failed: an internal error occurred
 ## Steps to replicate
 
 - `clone the repo`
-- `init a git repo`
+- `init a git repository`
 - `commit and push to github`
 - `try to deploy on cloudflare pages`

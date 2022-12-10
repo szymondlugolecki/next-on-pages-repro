@@ -26,7 +26,6 @@ const withBundleAnalyzer = bundleFunc({
 const ContentSecurityPolicy = `
  default-src 'self' localhost:3000 localhost:8787 http://localhost:3000;
  script-src 'self' http://localhost:3000 localhost:3000;
- img-src 'self' lh3.googleusercontent.com countryflagsapi.com;
  style-src 'self' http://localhost:3000 localhost:3000;
  font-src 'self';  
  connect-src 'self' localhost:3000 localhost:8787
@@ -82,10 +81,6 @@ export default withBundleAnalyzer({
         permanent: true,
       },
     ];
-  },
-  images: {
-    domains: ['countryflagsapi.com'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   },
   reactStrictMode: true,
   eslint: {

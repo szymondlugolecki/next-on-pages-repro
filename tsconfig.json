@@ -16,13 +16,6 @@
     "incremental": true,
     "typeRoots": ["./types"]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "oldfiles/QuestionsGenerator",
-    "oldfiles/QuestionsGenerator",
-    "oldnextauth"
-  ],
-  "exclude": ["node_modules", "oldfiles"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
 }
