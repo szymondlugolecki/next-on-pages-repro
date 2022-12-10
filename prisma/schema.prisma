@@ -18,59 +18,7 @@ model User {
   nickname    String        @unique
   vip         Boolean       @default(false)
   banned      Boolean       @default(false)
-  ducats      Int           @default(0)
-  nameChanges Int           @default(1)
   verifyID    String?       @unique
-  UserTokens  UserTokens[]
-  PlayerScore PlayerScore[]
 
   @@unique([id, email, nickname, verifyID])
-}
-
-// model VerificationToken {
-//   identifier String   @id @default(auto()) @map("_id") @db.ObjectId
-//   token      String   @unique
-//   expires    DateTime
-
-//   @@unique([identifier, token])
-// }
-
-model UserTokens {
-  id String @id @default(uuid())
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
-
-  token       String @db.Text
-  // family      String   @unique
-  browserInfo String
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-
-  @@index([userId])
-}
-
-// model Question {
-
-// }
-
-model Game {
-  id Int @id @default(autoincrement())
-
-  players   PlayerScore[]
-  // questions 
-  createdAt DateTime      @default(now())
-}
-
-model PlayerScore {
-  id     String @id @default(uuid())
-  player User   @relation(fields: [userId], references: [id])
-  points Int
-  result Int
-  Game   Game?  @relation(fields: [gameId], references: [id])
-  gameId Int?
-  userId String
-
-  @@index([userId])
-  @@index([gameId])
 }
