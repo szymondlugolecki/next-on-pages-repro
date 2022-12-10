@@ -6,18 +6,9 @@ export const config = {
   runtime: 'experimental-edge',
 };
 
-const NO_RETRY_HEADER = 'x-no-retry';
-
 export default async function handler(req: NextRequest) {
-  console.log(
-    'cookies',
-    req.cookies,
-    'auth',
-    req.headers.get('Authorization'),
-    'x-no-retry',
-    req.headers.get(NO_RETRY_HEADER),
-  );
-  return new Response(JSON.stringify({ message: 'Bro is unauthorized' } as ErrorResponse), {
+  console.log('Cookies', req.cookies);
+  return new Response(JSON.stringify({ message: 'foobar' } as ErrorResponse), {
     headers: {
       'Content-Type': 'application/json',
     },

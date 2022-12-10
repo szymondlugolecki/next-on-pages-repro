@@ -43,8 +43,6 @@ storybook-static
 # Local Netlify folder
 .netlify
 
-.faunarc
-
 pnpm-lock.yaml
 
 /oldfiles
