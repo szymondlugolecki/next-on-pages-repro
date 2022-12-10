@@ -11,3 +11,4 @@ Failed: an internal error occurred
 - `init a git repository`
 - `commit and push to github`
 - `try to deploy on cloudflare pages`
+- `build command: npm run pagesbuild`
